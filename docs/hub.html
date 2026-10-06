@@ -1,0 +1,968 @@
+<title>Relative Drift Monitor Hub</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky section nav on the left (stacks on phones), long-form documentation on the right, source code last. */
+:root{--bg:#f6f7f9;--panel:#ffffff;--fg:#1b2130;--muted:#66708a;--line:#d9dde6;--line2:#eceef3;--accent:#2f5bd1;--accent-bg:#e7edfb;--code-bg:#f0f2f6;--sans:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111419;--panel:#191d24;--fg:#e4e7ee;--muted:#8d95a8;--line:#2c323d;--line2:#232831;--accent:#7a9bff;--accent-bg:#1d2740;--code-bg:#13161c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111419;--panel:#191d24;--fg:#e4e7ee;--muted:#8d95a8;--line:#2c323d;--line2:#232831;--accent:#7a9bff;--accent-bg:#1d2740;--code-bg:#13161c;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.6;padding-block:24px;padding-inline:clamp(16px,3vw,32px)}
+.wrap{display:grid;grid-template-columns:220px minmax(0,1fr);gap:32px;max-width:1180px;margin:0 auto}
+@media (max-width:820px){.wrap{grid-template-columns:1fr}nav{position:static}}
+nav{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;font-size:13px}
+nav a{display:block;color:var(--muted);text-decoration:none;padding:4px 0;border-left:2px solid transparent;padding-left:10px}
+nav a:hover{color:var(--fg);border-color:var(--line)}
+h1{font-size:26px;font-weight:600;letter-spacing:-.01em;margin:0 0 4px;text-wrap:balance}
+h2{font-size:18px;font-weight:600;margin:40px 0 10px;padding-top:16px;border-top:1px solid var(--line2);text-wrap:balance}
+h3{font-size:15px;font-weight:600;margin:20px 0 6px}
+p,li{max-width:72ch}
+.lede{color:var(--muted);margin:0 0 20px;max-width:72ch}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 18px;margin:12px 0}
+.btn{display:inline-block;border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:4px;padding:7px 14px;font:inherit;font-size:13px;font-weight:500;cursor:pointer;text-decoration:none}
+.btn.solid{background:var(--accent);color:#fff}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code{font-family:var(--mono);font-size:13px;background:var(--code-bg);padding:1px 5px;border-radius:3px}
+pre{font-family:var(--mono);font-size:12px;line-height:1.5;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:8px 0}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:500;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:6px 8px;border-bottom:1px solid var(--line2);vertical-align:top}
+.tw{overflow-x:auto}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 16px;font-size:13.5px}
+.kv b{font-weight:500;color:var(--muted)}
+.src{position:relative}
+.src textarea{width:100%;height:420px;font-family:var(--mono);font-size:11.5px;line-height:1.45;background:var(--code-bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:12px;resize:vertical;white-space:pre;overflow:auto}
+.toast{font-size:13px;color:var(--muted);margin-left:10px}
+.tag{display:inline-block;font-size:11px;font-weight:500;padding:1px 7px;border-radius:3px;background:var(--accent-bg);color:var(--accent);margin-right:4px}
+ol li,ul li{margin:3px 0}
+</style>
+
+<div class="wrap">
+<nav aria-label="Sections">
+  <a href="#get">Get the files</a>
+  <a href="#what">What it is</a>
+  <a href="#method">Method</a>
+  <a href="#use">How to use the monitor</a>
+  <a href="#params">Parameters</a>
+  <a href="#findings">Findings on synthetic data</a>
+  <a href="#data">Data spec for real markets</a>
+  <a href="#roadmap">Roadmap</a>
+  <a href="#port">Porting to MATLAB / Python</a>
+  <a href="#log">Change log</a>
+  <a href="#source">Source code</a>
+</nav>
+<main>
+<h1>Relative Drift Monitor · project hub</h1>
+<p class="lede">Window-free detection of under- and outperforming countries across an EM cross-section, with pairwise matrix, analog-based probabilities of continuation vs reversion, a point-in-time backtest, and PnL attribution. Everything built in the conversation of 1–3 October 2026, collected here so it can be picked up from any machine.</p>
+
+<h2 id="get">Get the files</h2>
+<div class="card">
+  <p style="margin:0 0 10px"><span class="tag">Live app</span> The interactive monitor is its own artifact. Open it, then use its Share menu to give others access; the link below works for you from any signed-in device.</p>
+  <a class="btn solid" href="https://claude.ai/artifact/JmkeHrBJpXXgiExbbdhMw6">Open the monitor</a>
+  <p style="margin:14px 0 10px"><span class="tag">Source</span> The complete single-file HTML (no dependencies beyond Google Fonts) is embedded at the bottom of this page. Copy it to the clipboard, paste into a file named <code>EM_Relative_Drift_Monitor.html</code>, and open it in any browser; it runs fully offline.</p>
+  <button class="btn" id="copyTop">Copy full source to clipboard</button><span class="toast" id="toastTop"></span>
+</div>
+
+<h2 id="what">What it is</h2>
+<p>A detector for "which countries have moved a lot relative to peers" that does not depend on a lookback window. Instead of a 1-month or 3-month change, it accumulates beta-adjusted daily surprises and lets the data decide where the move started. Four views:</p>
+<ol>
+  <li><b>Ranked</b>: 30 countries sorted by a signed CUSUM statistic, with bp since onset, days since onset, and the larger swing the move sits inside.</li>
+  <li><b>Pair matrix</b>: 30×30 heatmap, cell (i, j) = CUSUM of i's yield change against j's with a recursive pair beta.</li>
+  <li><b>Scanner</b>: names and pairs whose historical analogs say "continue" or "revert" with the probability, horizon, pooling and conditioning you choose.</li>
+  <li><b>Backtest</b>: country-level long/short with three rules, beta-adjusted sizing, equity curves, parameter sweeps, and attribution of PnL to the state each trade was entered in.</li>
+</ol>
+<p>Data in the prototype is synthetic (30 names, ~6 years, with a "true dynamics" knob from trending to reverting). The engine is data-agnostic: anything that becomes a T×N matrix of daily changes works.</p>
+
+<h2 id="method">Method</h2>
+<h3>1. Beta-adjusted residual</h3>
+<p>For each country i and day t, Δy<sub>i,t</sub> is regressed on the common factor f<sub>t</sub> (cross-sectional mean of Δy, or a supplied index) with a recursive least-squares beta using a forgetting factor λ = 0.5<sup>1/half-life</sup>. The residual e<sub>i,t</sub> = Δy<sub>i,t</sub> − β<sub>i,t−1</sub> f<sub>t</sub> is standardized by an EWMA of its own variance to give z<sub>i,t</sub>. Toggle: cross-sectional demeaning instead of beta.</p>
+<h3>2. Two-sided CUSUM</h3>
+<p>S<sup>+</sup> = max(0, S<sup>+</sup> + z − k), S<sup>−</sup> = max(0, S<sup>−</sup> − z − k). The signed statistic S<sup>+</sup> − S<sup>−</sup> ranks the cross-section; positive = yield rising vs peers (cheapening). An alarm fires when either side exceeds h and both reset. The <i>onset</i> of the current move is the last day the signed statistic was at or below zero; days since onset is the lookback the data chose.</p>
+<h3>3. Swing (zigzag) layer</h3>
+<p>CUSUM's drift allowance k makes it forget slow moves. The un-reset cumulative residual R<sub>t</sub> = Σe is tracked with a zigzag: a turning point is confirmed when R reverses by more than ZZ × (250d residual vol) × √20. For each name: swing start, bp since the last confirmed turn, peak excursion, pullback from peak, and the swing's percentile against the name's completed swings. The detail view says whether the CUSUM move is with or against the larger swing.</p>
+<h3>4. Pair matrix</h3>
+<p>Same CUSUM on Δy<sub>i</sub> − b<sub>ij</sub> Δy<sub>j</sub> with a recursive pair beta, for all ordered pairs. Not exactly antisymmetric in beta mode (b<sub>ij</sub> ≠ 1/b<sub>ji</sub>). Country net score g<sub>i</sub> = mean<sub>j</sub>(S<sub>ij</sub> − S<sub>ji</sub>)/2.</p>
+<h3>5. Analogs</h3>
+<p>An episode is the first day a series' signed statistic crosses a |S| bucket (0.5 steps) in a given direction; it stores the forward residual at 5/10/20/40 days, the run age bin at crossing (≤5, 6–20, &gt;20 d) and the vol-regime bin (60d/250d residual vol &lt;0.8, 0.8–1.25, &gt;1.25). P(continue) for today's reading is the share of analogs whose forward residual kept the drift's sign. Pooling: all names, same region, similar rating bucket, or similar duration bucket; optional conditioning on age and vol bins. If a pool is thinner than the minimum, it widens automatically and is flagged.</p>
+<h3>6. Backtest</h3>
+<p>Signal at close t, PnL on t+1, 60-day warm-up. Rules: (a) re-rank daily top-K by net score; (b) enter |g| &gt; h/2, exit &lt; h/4; (c) analog probabilities, where each day's probability uses only episodes whose horizon completed before that day, trades are held for the horizon, ranked by edge and capped at a maximum open count, and the momentum and reversion books are tracked separately. Sizing: 1/β per leg (net factor beta zero ex ante, PnL on raw Δy) or equal weight with residual PnL. Attribution tags each trade with entry |S| bucket, run age, with/against swing, vol regime and book, and reports n, hit rate, mean bp, t-stat per bucket plus the average PnL path by day in trade.</p>
+
+<h2 id="use">How to use the monitor</h2>
+<div class="card">
+<div class="kv">
+<b>Controls strip</b><span>h (alarm threshold), k (drift allowance), beta half-life, true dynamics (synthetic generator only), beta vs mean adjustment. New sample reseeds the generator.</span>
+<b>Ranked</b><span>Click a row to load it in Detail. Swing columns show the longer move; ⇄ marks a CUSUM move running against the larger swing.</span>
+<b>Pair matrix</b><span>Hover for stat, bp and days; click a cell for pair detail. Rows and columns sorted by single-name score, so a full red row is a name drifting against the whole complex.</span>
+<b>Detail</b><span>Top chart: un-reset cumulative residual with onset shading and swing turning points. Bottom: S<sup>+</sup>/−S<sup>−</sup> with ±h. Context block: rarity, episodes per year, run-length percentile, speed, vol regime, half-life, beta drift, peer breadth, swing percentile, analog table and fan chart, and a plain-English verdict.</span>
+<b>Scanner</b><span>Set horizon, probability thresholds, min |S|, min analogs, pool and context matching. Tables list passing names and pairs with the trade spelled out. Click to open in Detail.</span>
+<b>Backtest</b><span>Choose rule, sizing, cost, K or max-open. With the analog rule the strip above drives the backtest, the two lines are the momentum and reversion books, the sweep is by probability threshold, and the attribution block appears below.</span>
+</div></div>
+
+<h2 id="params">Parameters</h2>
+<div class="tw"><table>
+<tr><th>Name</th><th>Default</th><th>Role</th><th>Note</th></tr>
+<tr><td>h</td><td>5</td><td>CUSUM alarm threshold (σ units)</td><td>Bigger = fewer, larger alarms</td></tr>
+<tr><td>k</td><td>0.5</td><td>CUSUM drift allowance (σ/day)</td><td>Half the shift size you care about; 0 = pure cumulative</td></tr>
+<tr><td>Half-life</td><td>90 d</td><td>Beta forgetting factor</td><td>Estimation memory, not a signal window; Kalman beta would replace it</td></tr>
+<tr><td>Vol EWMA</td><td>0.97</td><td>Residual variance smoothing</td><td>Fixed in code (<code>ev=0.97·ev+0.03·e²</code>)</td></tr>
+<tr><td>ZZ</td><td>2</td><td>Swing reversal threshold (× monthly resid. vol)</td><td>Constant <code>ZZ</code> in script</td></tr>
+<tr><td>BSTEP</td><td>0.5</td><td>|S| bucket width for analogs</td><td>Constant <code>BSTEP</code></td></tr>
+<tr><td>Horizon</td><td>20 d</td><td>Analog forward window and hold period</td><td>5/10/20/40</td></tr>
+<tr><td>P(revert), P(continue)</td><td>60%</td><td>Scanner / backtest entry thresholds</td><td>Sweep table shows sensitivity</td></tr>
+<tr><td>Min |S|, min analogs</td><td>2.0, 20</td><td>Candidate filters</td><td>Pools widen automatically below min analogs</td></tr>
+<tr><td>Max open</td><td>10</td><td>Position cap, analog rule</td><td>Candidates ranked by edge</td></tr>
+<tr><td>Cost</td><td>0.5 bp</td><td>Per unit notional traded</td><td>Replace with per-name bid/ask on real data</td></tr>
+</table></div>
+
+<h2 id="findings">Findings on synthetic data</h2>
+<ul>
+  <li>Follow vs fade is entirely a property of the data, not the detector: zero-cost Sharpe flips sign between the trending and reverting generator settings, as it should.</li>
+  <li>Costs decide the exit rule. Daily re-ranking of top-K churned both books negative at 1 bp; the alarm-threshold exit and the horizon-hold kept most of the edge.</li>
+  <li>Attribution on a mildly trending sample: entries 6–20 days after onset earned +8.7 bp (t = 4.2); entries ≤5 days earned +1.2 bp; entries on the alarm day (|S| ≥ 5) lost ~30 bp. With-swing momentum trades +5.4 bp (t = 3.8) vs against-swing +3.9 bp (t = 1.9).</li>
+  <li>Beta-neutral 1/β sizing costs a little Sharpe versus residual booking (7.1 vs 7.3 on one sample), the expected leak from beta estimation error.</li>
+  <li>Region or rating pooling with context matching raises top-row P(continue) from ~65% on hundreds of analogs to ~75–80% on tens; the asterisk tells you when the pool had to widen.</li>
+</ul>
+<p>None of these numbers transfer to real markets; the point is that the machinery responds the right way to known dynamics.</p>
+
+<h2 id="data">Data spec for real markets</h2>
+<p>The engine needs, per asset class, a daily return in profit direction, a hedge factor, and a cost estimate. Common to all: closes on one calendar with a stale-day flag (the CUSUM must skip stale days), universe membership history, a timestamp convention so signal day t strictly precedes PnL day t+1, and a per-name cost table.</p>
+<div class="tw"><table>
+<tr><th>Class</th><th>Series</th><th>Return (long)</th><th>Hedge factor</th><th>Pitfalls</th></tr>
+<tr><td>Rates (local 10y)</td><td>10y yield; duration or DV01; 3m or policy rate; 9y point for roll</td><td>−Δy·D + carry/252</td><td>XS mean or PC1; optional UST 10y beta</td><td>Local vs NY close</td></tr>
+<tr><td>CDS (5y sov, USD)</td><td>5y par spread; recovery; RPV01 (ISDA model or ≈(1−e<sup>−(s+r)·5</sup>)/(s+r))</td><td>−Δs·RPV01 + s/252</td><td>CDX EM or XS mean</td><td>Upfront names, CR14 roll, near-duplicate of bond spread (run the basis instead)</td></tr>
+<tr><td>FX (vs USD)</td><td>Spot; 1m forward/NDF points</td><td>Δlog spot + forward carry/252</td><td>DXY or TWI, plus EM FX index</td><td>Onshore/offshore carry; dollar beta is the key hedge</td></tr>
+<tr><td>Equities (country)</td><td>MSCI country TR in USD</td><td>Δlog TR</td><td>MSCI EM, plus ACWI</td><td>10× rates vol; standardize before cross-class use</td></tr>
+<tr><td>Hard-currency credit</td><td>EMBI country spread and spread duration</td><td>−Δs·SD + s/252</td><td>EMBIG spread change</td><td>Duplicates CDS</td></tr>
+</table></div>
+<p>Hard parts: carry (run on excess-of-carry returns or high-yielders sit permanently in the cheapening column), cross-class alignment (standardize per class, factor per class), and NaN policy for names missing an instrument (skip, never zero). Suggested Bloomberg pull: <code>GT&lt;ccy&gt;10Y Govt</code>, <code>CDS &lt;sov&gt; SNR 5Y</code>, spot and 1m forward tickers, MSCI country TR, <code>GDIM</code> for EMBI. One wide CSV per class plus a metadata sheet (instrument, class, direction, duration proxy, cost, region, rating).</p>
+
+<h2 id="roadmap">Roadmap</h2>
+<h3>Signal quality</h3>
+<ol>
+  <li>Swing-aware analogs: condition P(continue) on with/against the larger swing and swing age.</li>
+  <li>Kalman random-walk betas and a 2–3 factor model per asset class (replaces the half-life with process noise; separates "cheap vs EM" from "cheap vs its dollar or commodity beta").</li>
+  <li>Carry-adjusted residuals before FX or CDS go in.</li>
+  <li>Multi-asset confirmation: a per-country count of instruments alarming the same way.</li>
+</ol>
+<h3>Trusting the backtest</h3>
+<ol start="5">
+  <li>Walk-forward holdout: fit the grid on the first half, score on the second.</li>
+  <li><s>PnL attribution by entry state</s> (done).</li>
+  <li>Exposure diagnostics: realised factor beta, region and rating tilts of the live book.</li>
+  <li>Wilson confidence intervals on P(continue) next to each probability.</li>
+</ol>
+<h3>Usability</h3>
+<ol start="9">
+  <li>Daily change view: fresh alarms, threshold crossings, newly confirmed swing turns.</li>
+  <li>Event calendar overlay: central bank meetings, auctions, index rebalances, elections.</li>
+  <li>Export the scanner's passing trades with hedge ratios into the portfolio engine.</li>
+</ol>
+<p>Suggested order: 1, 8 and 7 on the current prototype; 5 before anyone sizes a position; 2–4 once real data is in, at which point the engine should move out of the browser into MATLAB or Python and the page become a viewer over its output.</p>
+
+<h2 id="port">Porting to MATLAB / Python</h2>
+<p>The whole engine is in the <code>&lt;script&gt;</code> block of the source. The functions map one-to-one:</p>
+<div class="tw"><table>
+<tr><th>Function</th><th>Does</th><th>Port note</th></tr>
+<tr><td><code>runCusum(y, x, h, k, λ, useBeta)</code></td><td>Recursive beta, EWMA vol, two-sided CUSUM, alarms, onset</td><td>Vectorizes per series; loop over t is unavoidable for the recursion</td></tr>
+<tr><td><code>swings(ePath)</code></td><td>Zigzag on cumulative residual with vol-scaled threshold</td><td>Sequential; store confirmation time of each turn</td></tr>
+<tr><td><code>computePairs()</code></td><td>runCusum on all ordered pairs</td><td>N(N−1) calls; trivially parallel</td></tr>
+<tr><td><code>netScores()</code></td><td>Antisymmetrised row mean of the pair matrix</td><td>One line in MATLAB: <code>mean((S−S')/2, 2)</code></td></tr>
+<tr><td><code>seriesEpisodes</code> / <code>buildEpisodes</code></td><td>First crossings per |S| bucket with forward residuals and context bins</td><td>Produces a long table; store as a table/DataFrame keyed by (series, dir, bucket)</td></tr>
+<tr><td><code>lookup(cnt, …)</code></td><td>Pooled counts with widening order: (attr, ctx) → (*, ctx) → (attr, *) → (*, *)</td><td>groupby + fallback chain</td></tr>
+<tr><td><code>backtest</code> / <code>backtestAnalog</code></td><td>Daily loop with position state; analog version updates counts as episodes complete</td><td>Keep the completed-before-t rule or the backtest looks ahead</td></tr>
+<tr><td><code>renderAttribution</code></td><td>groupby entry state: n, hit, mean, t</td><td>groupby/aggregate</td></tr>
+</table></div>
+
+<h2 id="log">Change log</h2>
+<div class="tw"><table>
+<tr><th>Version</th><th>Added</th></tr>
+<tr><td>1</td><td>Ranked monitor: beta-adjusted residual, signed CUSUM, days since reset, detail charts</td></tr>
+<tr><td>2</td><td>30×30 pair matrix with recursive pair betas, hover and click-through</td></tr>
+<tr><td>3</td><td>Backtest: country-level net score, follow vs fade, K sweep, true-dynamics generator knob</td></tr>
+<tr><td>4</td><td>Canvas sizing fix (charts no longer grow on redraw)</td></tr>
+<tr><td>5</td><td>Beta-adjusted 1/β sizing with net-beta diagnostic</td></tr>
+<tr><td>6</td><td>Context block: rarity, episodes, run length, speed, vol regime, half-life, beta drift, breadth, analog table, fan chart, verdict; onset redefined as last zero crossing; 6-year history</td></tr>
+<tr><td>7</td><td>Scanner view; analog-probability backtest rule with point-in-time probabilities and separate momentum/reversion books</td></tr>
+<tr><td>8</td><td>Pooling by region/rating/duration, context matching on age and vol bins, pairs in the analog backtest, position cap</td></tr>
+<tr><td>9</td><td>Swing layer: zigzag turning points, swing columns, un-reset residual chart, with/against-swing verdict</td></tr>
+<tr><td>10</td><td>PnL attribution by entry state and average PnL path by day in trade</td></tr>
+</table></div>
+
+<h2 id="source">Source code</h2>
+<p>Single file, 67,302 characters. Select all in the box or use the button; paste into <code>EM_Relative_Drift_Monitor.html</code>.</p>
+<div class="src">
+  <div style="margin:0 0 8px"><button class="btn" id="copyBot">Copy full source to clipboard</button><span class="toast" id="toastBot"></span></div>
+  <textarea id="srcBox" readonly spellcheck="false" aria-label="Monitor source code">&lt;title&gt;EM Relative Drift Monitor&lt;/title&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap&quot;&gt;
+&lt;style&gt;
+/* Layout: control strip, ranked ledger of 30 countries, detail chart for the selected one. Dense monitor, not a brochure. */
+:root{
+  --bg:#f6f7f9;--panel:#ffffff;--fg:#1b2130;--muted:#66708a;--line:#d9dde6;--line2:#eceef3;
+  --under:#c8472b;--under-bg:#fbe9e3;--out:#1f7a6b;--out-bg:#e0f1ed;--accent:#2f5bd1;--warn:#b7791f;
+  --sans:&#x27;IBM Plex Sans&#x27;,system-ui,sans-serif;--mono:&#x27;IBM Plex Mono&#x27;,ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme=&quot;light&quot;]){
+  --bg:#111419;--panel:#191d24;--fg:#e4e7ee;--muted:#8d95a8;--line:#2c323d;--line2:#232831;
+  --under:#f07a5a;--under-bg:#3a2119;--out:#4fc2ab;--out-bg:#163630;--accent:#7a9bff;--warn:#e0a94a;color-scheme:dark}}
+:root[data-theme=&quot;dark&quot;]{
+  --bg:#111419;--panel:#191d24;--fg:#e4e7ee;--muted:#8d95a8;--line:#2c323d;--line2:#232831;
+  --under:#f07a5a;--under-bg:#3a2119;--out:#4fc2ab;--out-bg:#163630;--accent:#7a9bff;--warn:#e0a94a;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.5;padding-block:20px;padding-inline:clamp(16px,3vw,32px)}
+h1{font-size:20px;font-weight:600;margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:2px 0 0;max-width:70ch}
+header{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+.controls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;background:var(--panel);border:1px solid var(--line);padding:10px 14px;border-radius:6px;margin-bottom:16px}
+.ctl{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.ctl input[type=range]{width:120px;accent-color:var(--accent)}
+.ctl output{font-family:var(--mono);color:var(--fg);min-width:3ch;text-align:right}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.seg button{border:0;background:transparent;color:var(--muted);padding:5px 10px;font:inherit;font-size:13px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--accent);color:#fff}
+button.plain{border:1px solid var(--line);background:var(--panel);color:var(--fg);font:inherit;font-size:13px;padding:5px 10px;border-radius:4px;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;min-width:0}
+.panel h2{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0;padding:10px 14px;border-bottom:1px solid var(--line2)}
+.ledger{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.ledger th{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:right;padding:6px 8px;border-bottom:1px solid var(--line2);white-space:nowrap}
+.ledger th:first-child,.ledger td:first-child{text-align:left;padding-left:14px}
+.ledger td{padding:3px 8px;border-bottom:1px solid var(--line2);text-align:right;font-family:var(--mono);font-size:12.5px;cursor:pointer}
+.ledger tr:hover td{background:var(--line2)}
+.ledger tr.sel td{background:var(--out-bg)}
+.ledger tr.sel.u td{background:var(--under-bg)}
+.ledger td.name{font-family:var(--sans);font-weight:500}
+.bar{position:relative;height:14px;width:100%;min-width:90px}
+.bar i{position:absolute;top:0;height:100%;}
+.bar .mid{position:absolute;left:50%;top:0;width:1px;height:100%;background:var(--line)}
+.bar .th{position:absolute;top:0;width:1px;height:100%;border-left:1px dashed var(--muted);opacity:.6}
+.pill{display:inline-block;font-family:var(--sans);font-size:11px;font-weight:500;padding:1px 7px;border-radius:3px}
+.pill.u{background:var(--under-bg);color:var(--under)}.pill.o{background:var(--out-bg);color:var(--out)}.pill.n{color:var(--muted)}
+.tw{overflow-x:auto}
+canvas{display:block;width:100%}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0;border-bottom:1px solid var(--line2)}
+.stat{padding:10px 14px;border-right:1px solid var(--line2)}
+.stat:last-child{border-right:0}
+.stat b{display:block;font-family:var(--mono);font-weight:500;font-size:18px}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.note{font-size:12.5px;color:var(--muted);padding:10px 14px;line-height:1.55}
+.note code{font-family:var(--mono);font-size:12px;color:var(--fg)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);padding:8px 14px 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:5px}
+.views{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-left:auto}
+.views button{border:0;background:transparent;color:var(--muted);padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
+.views button[aria-pressed=true]{background:var(--fg);color:var(--bg)}
+.mwrap{position:relative;padding:10px 14px 14px}
+#cMat{cursor:crosshair;touch-action:none}
+.tip{position:absolute;pointer-events:none;background:var(--fg);color:var(--bg);font-family:var(--mono);font-size:12px;padding:5px 8px;border-radius:3px;white-space:nowrap;transform:translate(-50%,-130%)}
+.tip[hidden]{display:none}
+.mlegend{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);padding:0 14px 10px}
+.ramp{height:10px;flex:1;max-width:220px;background:linear-gradient(90deg,var(--out),var(--panel) 50%,var(--under));border:1px solid var(--line)}
+&lt;/style&gt;
+
+&lt;header&gt;
+  &lt;div&gt;
+    &lt;h1&gt;EM Relative Drift Monitor&lt;/h1&gt;
+    &lt;p class=&quot;sub&quot;&gt;30 EM 10y yields, beta-adjusted to the common factor. Signed CUSUM on standardized residuals; the run length since last reset is the window the data chose. Synthetic sample.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div style=&quot;display:flex;gap:10px;align-items:center&quot;&gt;
+    &lt;div class=&quot;views&quot; role=&quot;group&quot; aria-label=&quot;View&quot;&gt;
+      &lt;button id=&quot;vRank&quot; aria-pressed=&quot;true&quot;&gt;Ranked&lt;/button&gt;
+      &lt;button id=&quot;vMat&quot; aria-pressed=&quot;false&quot;&gt;Pair matrix&lt;/button&gt;
+      &lt;button id=&quot;vScan&quot; aria-pressed=&quot;false&quot;&gt;Scanner&lt;/button&gt;
+      &lt;button id=&quot;vBt&quot; aria-pressed=&quot;false&quot;&gt;Backtest&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;button class=&quot;plain&quot; id=&quot;resample&quot;&gt;New sample&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/header&gt;
+
+&lt;div class=&quot;controls&quot;&gt;
+  &lt;div class=&quot;ctl&quot;&gt;&lt;label for=&quot;h&quot;&gt;Threshold h&lt;/label&gt;&lt;input type=&quot;range&quot; id=&quot;h&quot; min=&quot;2&quot; max=&quot;10&quot; step=&quot;0.5&quot; value=&quot;5&quot;&gt;&lt;output id=&quot;hv&quot;&gt;5.0&lt;/output&gt;&lt;/div&gt;
+  &lt;div class=&quot;ctl&quot;&gt;&lt;label for=&quot;k&quot;&gt;Drift k&lt;/label&gt;&lt;input type=&quot;range&quot; id=&quot;k&quot; min=&quot;0&quot; max=&quot;1&quot; step=&quot;0.05&quot; value=&quot;0.5&quot;&gt;&lt;output id=&quot;kv&quot;&gt;0.50&lt;/output&gt;&lt;/div&gt;
+  &lt;div class=&quot;ctl&quot;&gt;&lt;label for=&quot;hl&quot;&gt;Beta forgetting (half-life, d)&lt;/label&gt;&lt;input type=&quot;range&quot; id=&quot;hl&quot; min=&quot;20&quot; max=&quot;250&quot; step=&quot;10&quot; value=&quot;90&quot;&gt;&lt;output id=&quot;hlv&quot;&gt;90&lt;/output&gt;&lt;/div&gt;
+  &lt;div class=&quot;ctl&quot;&gt;&lt;label for=&quot;dyn&quot;&gt;True dynamics&lt;/label&gt;&lt;input type=&quot;range&quot; id=&quot;dyn&quot; min=&quot;-1&quot; max=&quot;1&quot; step=&quot;0.1&quot; value=&quot;0.4&quot;&gt;&lt;output id=&quot;dynv&quot;&gt;trend 0.4&lt;/output&gt;&lt;/div&gt;
+  &lt;div class=&quot;ctl&quot;&gt;&lt;span&gt;Relative to&lt;/span&gt;
+    &lt;div class=&quot;seg&quot; role=&quot;group&quot; aria-label=&quot;Adjustment&quot;&gt;
+      &lt;button id=&quot;mBeta&quot; aria-pressed=&quot;true&quot;&gt;beta × factor&lt;/button&gt;
+      &lt;button id=&quot;mMean&quot; aria-pressed=&quot;false&quot;&gt;cross-sectional mean&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;controls&quot; id=&quot;anaStrip&quot; hidden style=&quot;margin-top:-8px&quot;&gt;
+  &lt;span style=&quot;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)&quot;&gt;Analog filter&lt;/span&gt;
+  &lt;div class=&quot;ctl&quot;&gt;&lt;span&gt;Horizon&lt;/span&gt;
+    &lt;div class=&quot;seg&quot; role=&quot;group&quot; aria-label=&quot;Horizon&quot; id=&quot;hzSeg&quot;&gt;&lt;button data-h=&quot;5&quot;&gt;5d&lt;/button&gt;&lt;button data-h=&quot;10&quot;&gt;10d&lt;/button&gt;&lt;button data-h=&quot;20&quot; aria-pressed=&quot;true&quot;&gt;20d&lt;/button&gt;&lt;button data-h=&quot;40&quot;&gt;40d&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;ctl&quot;&gt;&lt;label for=&quot;pRev&quot;&gt;P(revert) ≥&lt;/label&gt;&lt;input type=&quot;range&quot; id=&quot;pRev&quot; min=&quot;50&quot; max=&quot;90&quot; step=&quot;1&quot; value=&quot;60&quot;&gt;&lt;output id=&quot;pRevv&quot;&gt;60%&lt;/output&gt;&lt;/div&gt;
+  &lt;div class=&quot;ctl&quot;&gt;&lt;label for=&quot;pMom&quot;&gt;P(continue) ≥&lt;/label&gt;&lt;input type=&quot;range&quot; id=&quot;pMom&quot; min=&quot;50&quot; max=&quot;90&quot; step=&quot;1&quot; value=&quot;60&quot;&gt;&lt;output id=&quot;pMomv&quot;&gt;60%&lt;/output&gt;&lt;/div&gt;
+  &lt;div class=&quot;ctl&quot;&gt;&lt;label for=&quot;minS&quot;&gt;Min |S|&lt;/label&gt;&lt;input type=&quot;range&quot; id=&quot;minS&quot; min=&quot;0.5&quot; max=&quot;5&quot; step=&quot;0.25&quot; value=&quot;2&quot;&gt;&lt;output id=&quot;minSv&quot;&gt;2.00&lt;/output&gt;&lt;/div&gt;
+  &lt;div class=&quot;ctl&quot;&gt;&lt;label for=&quot;nMin&quot;&gt;Min analogs&lt;/label&gt;&lt;input type=&quot;range&quot; id=&quot;nMin&quot; min=&quot;5&quot; max=&quot;100&quot; step=&quot;5&quot; value=&quot;20&quot;&gt;&lt;output id=&quot;nMinv&quot;&gt;20&lt;/output&gt;&lt;/div&gt;
+  &lt;div class=&quot;ctl&quot;&gt;&lt;span&gt;Pool&lt;/span&gt;
+    &lt;div class=&quot;seg&quot; role=&quot;group&quot; aria-label=&quot;Pool&quot; id=&quot;poolSeg&quot;&gt;&lt;button data-p=&quot;all&quot; aria-pressed=&quot;true&quot;&gt;all&lt;/button&gt;&lt;button data-p=&quot;region&quot;&gt;same region&lt;/button&gt;&lt;button data-p=&quot;rating&quot;&gt;similar rating&lt;/button&gt;&lt;button data-p=&quot;duration&quot;&gt;similar duration&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;ctl&quot;&gt;&lt;button class=&quot;plain&quot; id=&quot;condBtn&quot; aria-pressed=&quot;false&quot; style=&quot;font-size:12px&quot;&gt;Match run age &amp;amp; vol regime: off&lt;/button&gt;&lt;/div&gt;
+  &lt;div class=&quot;ctl&quot;&gt;&lt;span&gt;Backtest universe&lt;/span&gt;
+    &lt;div class=&quot;seg&quot; role=&quot;group&quot; aria-label=&quot;Universe&quot; id=&quot;uniSeg&quot;&gt;&lt;button data-u=&quot;names&quot; aria-pressed=&quot;true&quot;&gt;names&lt;/button&gt;&lt;button data-u=&quot;pairs&quot;&gt;pairs&lt;/button&gt;&lt;button data-u=&quot;both&quot;&gt;both&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;ctl&quot;&gt;&lt;label for=&quot;maxOpen&quot;&gt;Max open&lt;/label&gt;&lt;input type=&quot;range&quot; id=&quot;maxOpen&quot; min=&quot;2&quot; max=&quot;40&quot; step=&quot;1&quot; value=&quot;10&quot;&gt;&lt;output id=&quot;maxOpenv&quot;&gt;10&lt;/output&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;grid&quot;&gt;
+  &lt;section class=&quot;panel&quot;&gt;
+    &lt;h2&gt;Ranked by signed CUSUM (today)&lt;/h2&gt;
+    &lt;div class=&quot;legend&quot;&gt;&lt;span&gt;&lt;i style=&quot;background:var(--under)&quot;&gt;&lt;/i&gt;Underperforming (yield up vs peers)&lt;/span&gt;&lt;span&gt;&lt;i style=&quot;background:var(--out)&quot;&gt;&lt;/i&gt;Outperforming (yield down vs peers)&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;tw&quot;&gt;&lt;table class=&quot;ledger&quot; id=&quot;tbl&quot;&gt;
+      &lt;thead&gt;&lt;tr&gt;&lt;th&gt;Country&lt;/th&gt;&lt;th&gt;β&lt;/th&gt;&lt;th style=&quot;text-align:center&quot;&gt;CUSUM S⁺−S⁻&lt;/th&gt;&lt;th&gt;Since onset (bp)&lt;/th&gt;&lt;th&gt;Days&lt;/th&gt;&lt;th&gt;Swing bp&lt;/th&gt;&lt;th&gt;Swing days&lt;/th&gt;&lt;th&gt;Status&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+      &lt;tbody&gt;&lt;/tbody&gt;
+    &lt;/table&gt;&lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;section class=&quot;panel&quot; id=&quot;matPanel&quot; hidden&gt;
+    &lt;h2&gt;Pair matrix · row vs column, signed CUSUM&lt;/h2&gt;
+    &lt;div class=&quot;mlegend&quot;&gt;&lt;span&gt;Row outperforms col&lt;/span&gt;&lt;div class=&quot;ramp&quot;&gt;&lt;/div&gt;&lt;span&gt;Row underperforms col&lt;/span&gt;&lt;span style=&quot;margin-left:auto&quot;&gt;sorted by single-name score&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;mwrap&quot;&gt;&lt;canvas id=&quot;cMat&quot; height=&quot;560&quot;&gt;&lt;/canvas&gt;&lt;div class=&quot;tip&quot; id=&quot;tip&quot; hidden&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;p class=&quot;note&quot;&gt;Cell (i, j) runs the same CUSUM on &lt;code&gt;Δy_i − b_ij·Δy_j&lt;/code&gt;, with the pair beta estimated recursively (or on the raw spread in mean mode). Tap a cell to open the pair below. Outlined cells are past &lt;code&gt;h&lt;/code&gt;.&lt;/p&gt;
+  &lt;/section&gt;
+
+  &lt;section class=&quot;panel&quot; id=&quot;scanPanel&quot; hidden style=&quot;grid-column:1/-1&quot;&gt;
+    &lt;h2&gt;Scanner · names and pairs whose analogs say revert or continue&lt;/h2&gt;
+    &lt;div class=&quot;stats&quot; id=&quot;scanStats&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;grid&quot; style=&quot;padding:0 14px 14px;gap:16px&quot;&gt;
+      &lt;div&gt;&lt;h2 style=&quot;padding-left:0;border:0&quot;&gt;Countries vs factor&lt;/h2&gt;&lt;div class=&quot;tw&quot;&gt;&lt;table class=&quot;ledger&quot; id=&quot;scanSingles&quot;&gt;&lt;/table&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;div&gt;&lt;h2 style=&quot;padding-left:0;border:0&quot;&gt;Pairs&lt;/h2&gt;&lt;div class=&quot;tw&quot;&gt;&lt;table class=&quot;ledger&quot; id=&quot;scanPairs&quot;&gt;&lt;/table&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class=&quot;note&quot;&gt;Analogs are past episodes that crossed the same |S| bucket in the same direction, pooled across all names (or pairs) or only those sharing the chosen attribute; with context matching on, only episodes with the same run-age bin (≤5, 6–20, &amp;gt;20 days) and vol-regime bin (60d/250d residual vol &amp;lt;0.8, 0.8–1.25, &amp;gt;1.25) count. A &lt;span style=&quot;color:var(--warn)&quot;&gt;*&lt;/span&gt; on n means the pool was widened to reach the minimum. &quot;Continue&quot; means the drift kept going. A trade appears when P(revert) or P(continue) clears its slider, |S| is above the minimum, and enough analogs exist. Tap a row to open it in Detail.&lt;/p&gt;
+  &lt;/section&gt;
+
+  &lt;section class=&quot;panel&quot; id=&quot;btPanel&quot; hidden style=&quot;grid-column:1/-1&quot;&gt;
+    &lt;h2&gt;Backtest · country-level long/short from the pair matrix&lt;/h2&gt;
+    &lt;div class=&quot;controls&quot; style=&quot;border:0;border-bottom:1px solid var(--line2);border-radius:0;margin:0&quot;&gt;
+      &lt;div class=&quot;ctl&quot;&gt;&lt;label for=&quot;K&quot;&gt;K per side&lt;/label&gt;&lt;input type=&quot;range&quot; id=&quot;K&quot; min=&quot;1&quot; max=&quot;8&quot; step=&quot;1&quot; value=&quot;3&quot;&gt;&lt;output id=&quot;Kv&quot;&gt;3&lt;/output&gt;&lt;/div&gt;
+      &lt;div class=&quot;ctl&quot;&gt;&lt;span&gt;Entry/exit&lt;/span&gt;
+        &lt;div class=&quot;seg&quot; role=&quot;group&quot; aria-label=&quot;Rule&quot;&gt;
+          &lt;button id=&quot;rDaily&quot; aria-pressed=&quot;true&quot;&gt;re-rank daily&lt;/button&gt;
+          &lt;button id=&quot;rAlarm&quot; aria-pressed=&quot;false&quot;&gt;enter |g| &amp;gt; h/2, exit &amp;lt; h/4&lt;/button&gt;
+          &lt;button id=&quot;rAna&quot; aria-pressed=&quot;false&quot;&gt;analog probabilities&lt;/button&gt;
+        &lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;ctl&quot;&gt;&lt;span&gt;Sizing&lt;/span&gt;
+        &lt;div class=&quot;seg&quot; role=&quot;group&quot; aria-label=&quot;Sizing&quot;&gt;
+          &lt;button id=&quot;sBetaAdj&quot; aria-pressed=&quot;true&quot;&gt;1/β, beta-neutral&lt;/button&gt;
+          &lt;button id=&quot;sEqual&quot; aria-pressed=&quot;false&quot;&gt;equal, residual PnL&lt;/button&gt;
+        &lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;ctl&quot;&gt;&lt;label for=&quot;tc&quot;&gt;Cost, bp/trade&lt;/label&gt;&lt;input type=&quot;range&quot; id=&quot;tc&quot; min=&quot;0&quot; max=&quot;3&quot; step=&quot;0.25&quot; value=&quot;0.5&quot;&gt;&lt;output id=&quot;tcv&quot;&gt;0.5&lt;/output&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;stats&quot; id=&quot;btStats&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;legend&quot; style=&quot;padding-top:10px&quot; id=&quot;btLegend&quot;&gt;&lt;span&gt;&lt;i style=&quot;background:var(--accent)&quot;&gt;&lt;/i&gt;Follow (long outperformer, short underperformer)&lt;/span&gt;&lt;span&gt;&lt;i style=&quot;background:var(--warn)&quot;&gt;&lt;/i&gt;Fade (the reverse)&lt;/span&gt;&lt;/div&gt;
+    &lt;canvas id=&quot;cEq&quot; height=&quot;240&quot;&gt;&lt;/canvas&gt;
+    &lt;div class=&quot;grid&quot; style=&quot;padding:0 14px 14px&quot;&gt;
+      &lt;div&gt;&lt;h2 style=&quot;padding-left:0;border:0&quot;&gt;Sharpe by K · current rule&lt;/h2&gt;&lt;div class=&quot;tw&quot;&gt;&lt;table class=&quot;ledger&quot; id=&quot;sweep&quot;&gt;&lt;/table&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;div&gt;&lt;h2 style=&quot;padding-left:0;border:0&quot;&gt;Net score today (row-mean of matrix)&lt;/h2&gt;&lt;div class=&quot;tw&quot;&gt;&lt;table class=&quot;ledger&quot; id=&quot;netTbl&quot;&gt;&lt;/table&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;attrWrap&quot; hidden&gt;
+      &lt;h2&gt;Where the edge lives · per-unit PnL by entry state (analog rule, before costs)&lt;/h2&gt;
+      &lt;div class=&quot;grid&quot; style=&quot;padding:10px 14px 0;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))&quot; id=&quot;attrGrid&quot;&gt;&lt;/div&gt;
+      &lt;div class=&quot;grid&quot; style=&quot;padding:10px 14px 14px;gap:12px&quot;&gt;
+        &lt;div&gt;&lt;canvas id=&quot;cPath&quot; height=&quot;190&quot;&gt;&lt;/canvas&gt;&lt;/div&gt;
+        &lt;div&gt;&lt;div class=&quot;tw&quot;&gt;&lt;table class=&quot;ledger&quot; id=&quot;attrBook&quot;&gt;&lt;/table&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;p class=&quot;note&quot;&gt;Each trade is booked at one unit of factor-hedged notional and attributed to the state it was entered in. Mean is bp per trade over the full hold; t is mean / standard error. The path chart averages the cumulative PnL by day in trade: a curve that flattens early says the edge is in the first days after entry and the holding period is too long; one that keeps rising says the move persists past the horizon.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;p class=&quot;note&quot;&gt;Net score &lt;code&gt;g_i = mean_j (S_ij − S_ji)/2&lt;/code&gt;, positive = cheapening vs peers. With 1/β sizing each leg is scaled by the inverse of its recursive beta at the signal date, so the long and short sides carry equal factor exposure (net β = 0 ex ante) and PnL is on raw yield changes in bp, gross notional held equal to the equal-weight book. The equal-weight option instead books each name against its own factor hedge and credits the residual. Signal at close t, PnL on t+1. Warm-up 60 days. Synthetic sample: move the &quot;true dynamics&quot; slider toward reverting to see fade take over.&lt;/p&gt;
+  &lt;/section&gt;
+
+  &lt;section class=&quot;panel&quot; id=&quot;detPanel&quot;&gt;
+    &lt;h2 id=&quot;detTitle&quot;&gt;Detail&lt;/h2&gt;
+    &lt;div class=&quot;stats&quot;&gt;
+      &lt;div class=&quot;stat&quot;&gt;&lt;b id=&quot;sBeta&quot;&gt;–&lt;/b&gt;&lt;span&gt;Beta today&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;stat&quot;&gt;&lt;b id=&quot;sCum&quot;&gt;–&lt;/b&gt;&lt;span&gt;Resid. since reset&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;stat&quot;&gt;&lt;b id=&quot;sDays&quot;&gt;–&lt;/b&gt;&lt;span&gt;Days since onset&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;stat&quot;&gt;&lt;b id=&quot;sAlarms&quot;&gt;–&lt;/b&gt;&lt;span&gt;Alarms, 1y&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;stat&quot;&gt;&lt;b id=&quot;sSwing&quot;&gt;–&lt;/b&gt;&lt;span&gt;Swing since last turn&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;stat&quot;&gt;&lt;b id=&quot;sSwingPk&quot;&gt;–&lt;/b&gt;&lt;span&gt;Peak · pullback&lt;/span&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;canvas id=&quot;cResid&quot; height=&quot;190&quot;&gt;&lt;/canvas&gt;
+    &lt;canvas id=&quot;cCusum&quot; height=&quot;170&quot;&gt;&lt;/canvas&gt;
+    &lt;p class=&quot;note&quot;&gt;Top: cumulative beta-adjusted residual, bp, never reset, with the CUSUM move shaded from its onset and the swing structure overlaid: a turning point is confirmed when the level reverses by more than 2× monthly residual vol. The swing columns show the move since the last confirmed turn, which can be far older than the CUSUM onset when the drift has been slow. Bottom: &lt;code&gt;S⁺&lt;/code&gt; (under) and &lt;code&gt;−S⁻&lt;/code&gt; (out) with &lt;code&gt;±h&lt;/code&gt;. An alarm resets both and starts a new run; the days-since-onset column (last zero crossing of the statistic) is the endogenous lookback.&lt;/p&gt;
+    &lt;h2&gt;In context · should you trade this?&lt;/h2&gt;
+    &lt;div class=&quot;stats&quot; id=&quot;ctxTiles&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;grid&quot; style=&quot;padding:10px 14px 0;gap:12px&quot;&gt;
+      &lt;div&gt;&lt;div class=&quot;tw&quot;&gt;&lt;table class=&quot;ledger&quot; id=&quot;analogTbl&quot;&gt;&lt;/table&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;div&gt;&lt;canvas id=&quot;cFan&quot; height=&quot;170&quot;&gt;&lt;/canvas&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class=&quot;note&quot; id=&quot;ctxNote&quot;&gt;&lt;/p&gt;
+  &lt;/section&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+(function(){
+const C=[&#x27;BR&#x27;,&#x27;MX&#x27;,&#x27;CO&#x27;,&#x27;CL&#x27;,&#x27;PE&#x27;,&#x27;ZA&#x27;,&#x27;TR&#x27;,&#x27;PL&#x27;,&#x27;HU&#x27;,&#x27;CZ&#x27;,&#x27;RO&#x27;,&#x27;ID&#x27;,&#x27;MY&#x27;,&#x27;TH&#x27;,&#x27;PH&#x27;,&#x27;IN&#x27;,&#x27;CN&#x27;,&#x27;KR&#x27;,&#x27;IL&#x27;,&#x27;EG&#x27;,&#x27;NG&#x27;,&#x27;KE&#x27;,&#x27;GH&#x27;,&#x27;DO&#x27;,&#x27;UY&#x27;,&#x27;PA&#x27;,&#x27;RS&#x27;,&#x27;KZ&#x27;,&#x27;SA&#x27;,&#x27;AE&#x27;];
+const NAMES={BR:&#x27;Brazil&#x27;,MX:&#x27;Mexico&#x27;,CO:&#x27;Colombia&#x27;,CL:&#x27;Chile&#x27;,PE:&#x27;Peru&#x27;,ZA:&#x27;South Africa&#x27;,TR:&#x27;Türkiye&#x27;,PL:&#x27;Poland&#x27;,HU:&#x27;Hungary&#x27;,CZ:&#x27;Czechia&#x27;,RO:&#x27;Romania&#x27;,ID:&#x27;Indonesia&#x27;,MY:&#x27;Malaysia&#x27;,TH:&#x27;Thailand&#x27;,PH:&#x27;Philippines&#x27;,IN:&#x27;India&#x27;,CN:&#x27;China&#x27;,KR:&#x27;Korea&#x27;,IL:&#x27;Israel&#x27;,EG:&#x27;Egypt&#x27;,NG:&#x27;Nigeria&#x27;,KE:&#x27;Kenya&#x27;,GH:&#x27;Ghana&#x27;,DO:&#x27;Dominican Rep.&#x27;,UY:&#x27;Uruguay&#x27;,PA:&#x27;Panama&#x27;,RS:&#x27;Serbia&#x27;,KZ:&#x27;Kazakhstan&#x27;,SA:&#x27;Saudi Arabia&#x27;,AE:&#x27;UAE&#x27;};
+// Approximate static metadata; replace with your own. Region, rating bucket, 10y modified duration.
+const META={BR:[&#x27;LatAm&#x27;,&#x27;BB&#x27;,5.5],MX:[&#x27;LatAm&#x27;,&#x27;BBB&#x27;,6.3],CO:[&#x27;LatAm&#x27;,&#x27;BB&#x27;,6.0],CL:[&#x27;LatAm&#x27;,&#x27;A&#x27;,7.2],PE:[&#x27;LatAm&#x27;,&#x27;BBB&#x27;,7.0],ZA:[&#x27;Africa&#x27;,&#x27;BB&#x27;,6.0],TR:[&#x27;EMEA&#x27;,&#x27;B&#x27;,3.9],PL:[&#x27;EMEA&#x27;,&#x27;A&#x27;,7.3],HU:[&#x27;EMEA&#x27;,&#x27;BBB&#x27;,6.9],CZ:[&#x27;EMEA&#x27;,&#x27;AA&#x27;,7.8],RO:[&#x27;EMEA&#x27;,&#x27;BBB&#x27;,6.8],ID:[&#x27;Asia&#x27;,&#x27;BBB&#x27;,6.6],MY:[&#x27;Asia&#x27;,&#x27;A&#x27;,7.8],TH:[&#x27;Asia&#x27;,&#x27;BBB&#x27;,8.5],PH:[&#x27;Asia&#x27;,&#x27;BBB&#x27;,7.0],IN:[&#x27;Asia&#x27;,&#x27;BBB&#x27;,6.8],CN:[&#x27;Asia&#x27;,&#x27;A&#x27;,8.8],KR:[&#x27;Asia&#x27;,&#x27;AA&#x27;,8.2],IL:[&#x27;EMEA&#x27;,&#x27;A&#x27;,8.0],EG:[&#x27;Africa&#x27;,&#x27;B&#x27;,4.5],NG:[&#x27;Africa&#x27;,&#x27;B&#x27;,4.8],KE:[&#x27;Africa&#x27;,&#x27;B&#x27;,4.6],GH:[&#x27;Africa&#x27;,&#x27;B&#x27;,4.2],DO:[&#x27;LatAm&#x27;,&#x27;BB&#x27;,6.3],UY:[&#x27;LatAm&#x27;,&#x27;BBB&#x27;,6.5],PA:[&#x27;LatAm&#x27;,&#x27;BBB&#x27;,7.0],RS:[&#x27;EMEA&#x27;,&#x27;BB&#x27;,7.0],KZ:[&#x27;EMEA&#x27;,&#x27;BBB&#x27;,6.5],SA:[&#x27;EMEA&#x27;,&#x27;A&#x27;,7.9],AE:[&#x27;EMEA&#x27;,&#x27;AA&#x27;,8.0]};
+const RBUCKET={AA:&#x27;IG-high&#x27;,A:&#x27;IG-high&#x27;,BBB:&#x27;IG-low&#x27;,BB:&#x27;HY&#x27;,B:&#x27;B-&#x27;};
+const attrOf=(i,mode)=&gt;{const m=META[C[i]];return mode===&#x27;region&#x27;?m[0]:mode===&#x27;rating&#x27;?RBUCKET[m[1]]:mode===&#x27;duration&#x27;?(m[2]&lt;6?&#x27;short&#x27;:m[2]&lt;=7.5?&#x27;mid&#x27;:&#x27;long&#x27;):&#x27;*&#x27;};
+const N=C.length,T=1500;
+let seed=20261001;
+function rnd(){seed=(seed*1664525+1013904223)&gt;&gt;&gt;0;return seed/4294967296}
+function gauss(){let u=rnd()||1e-9,v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+
+let dY,F,betaTrue;
+let simSeed=20261001;
+function simulate(){
+  seed=simSeed;
+  const d=+document.getElementById(&#x27;dyn&#x27;).value;
+  const trend=Math.max(0,d),rev=Math.max(0,-d);
+  betaTrue=C.map(()=&gt;0.5+1.3*rnd());
+  const ivol=C.map(()=&gt;2.5+5*rnd());
+  F=[];dY=C.map(()=&gt;[]);
+  const drift=C.map(()=&gt;0),level=C.map(()=&gt;0);
+  const theta=0.06*rev;          // daily pull of relative level back to zero
+  const pBurst=0.016*trend; // chance per country-day of a new persistent drift
+  const phi=0.97;                 // drift persistence
+  for(let t=0;t&lt;T;t++){
+    const vol=4*(1+(t&gt;T-70&amp;&amp;t&lt;T-40?1.2:0)+(t%400&gt;330?0.8:0));
+    const f=vol*gauss();F.push(f);
+    for(let i=0;i&lt;N;i++){
+      if(rnd()&lt;pBurst)drift[i]+= (rnd()&lt;0.5?-1:1)*(1.2+2.5*rnd());
+      drift[i]*=phi;
+      const idio=ivol[i]*gauss()+drift[i]-theta*level[i];
+      level[i]+=idio;
+      dY[i].push(betaTrue[i]*f+idio);
+    }
+  }
+}
+
+let mode=&#x27;beta&#x27;,res=null,sel=0,view=&#x27;rank&#x27;,pairSel=null,pairs=null;
+function cumsum(a){let s=0;return a.map(v=&gt;s+=v)}
+// One CUSUM run on y against regressor x (x=null → no adjustment). Returns paths and today&#x27;s state.
+function runCusum(y,x,h,k,lam,useBeta){
+  let sxy=0,sxx=1e-6,beta=1,ev=25,Sp=0,Sn=0,last=0,cum=0,alarms=[];
+  const cumPath=[],spPath=[],snPath=[],betaPath=[],ePath=[],resetAt=[0];
+  for(let t=0;t&lt;T;t++){
+    let e;
+    if(useBeta){const xt=x[t];e=y[t]-beta*xt;sxy=lam*sxy+xt*y[t];sxx=lam*sxx+xt*xt;beta=t&lt;20?1:sxy/sxx}
+    else e=y[t]-(x?x[t]:0);
+    ev=t&lt;20?Math.max(ev,e*e):0.97*ev+0.03*e*e;
+    const z=e/Math.sqrt(ev);
+    Sp=Math.max(0,Sp+z-k);Sn=Math.max(0,Sn-z-k);
+    cum+=e;last++;
+    cumPath.push(cum);spPath.push(Sp);snPath.push(Sn);betaPath.push(beta);ePath.push(e);
+    if(Sp&gt;h||Sn&gt;h){alarms.push({t,dir:Sp&gt;h?1:-1});Sp=0;Sn=0;cum=0;last=0;resetAt.push(t+1)}
+  }
+  // If the alarm fired today the counters have already reset; report the run that just ended.
+  const alarmToday=alarms.length&amp;&amp;alarms[alarms.length-1].t===T-1;
+  const lastReset=alarmToday?resetAt[resetAt.length-2]:resetAt[resetAt.length-1];
+  // Onset of the current move: last day the signed statistic was at or below zero in today&#x27;s direction, bounded by the last reset.
+  const sT=spPath[T-1]-snPath[T-1],dir=sT&gt;=0?1:-1;let onset=T-1;
+  while(onset&gt;lastReset&amp;&amp;dir*(spPath[onset-1]-snPath[onset-1])&gt;0)onset--;
+  let cumRun=0;for(let t=onset;t&lt;T;t++)cumRun+=ePath[t];
+  const sw=swings(ePath);
+  return {beta:betaPath[T-1],score:sT,cum:cumRun,days:T-onset,alarmToday,alarms:alarms.filter(a=&gt;a.t&gt;=T-250).length,cumPath,spPath,snPath,ePath,betaPath,since:onset,alarmList:alarms,sw};
+}
+// Zigzag on the un-reset cumulative residual R: a turning point is confirmed once R reverses by more than
+// thr = ZZ × (250d residual vol) × sqrt(20), i.e. roughly a one-month-vol reversal. Window-free: only the threshold.
+const ZZ=2;
+function swings(ePath){
+  const R=cumsum(ePath),cs=cumsum(ePath.map(v=&gt;v*v));
+  const sig=t=&gt;{const a=Math.max(0,t-250),n=t-a||1;return Math.sqrt((cs[t]-cs[a])/n)||1};
+  const ext=[{t:0,v:R[0]}];let dir=0,cT=0,cV=R[0];
+  for(let t=1;t&lt;T;t++){const thr=ZZ*sig(t)*Math.sqrt(20),v=R[t];
+    if(dir===0){if(v-cV&gt;thr){dir=1;cT=t;cV=v}else if(cV-v&gt;thr){dir=-1;cT=t;cV=v}}
+    else if(dir===1){if(v&gt;cV){cT=t;cV=v}else if(cV-v&gt;thr){ext.push({t:cT,v:cV,conf:t});dir=-1;cT=t;cV=v}}
+    else{if(v&lt;cV){cT=t;cV=v}else if(v-cV&gt;thr){ext.push({t:cT,v:cV,conf:t});dir=1;cT=t;cV=v}}
+  }
+  const last=ext[ext.length-1];
+  const amps=[];for(let i=1;i&lt;ext.length;i++)amps.push(Math.abs(ext[i].v-ext[i-1].v));
+  return {R,ext,start:last.t,startV:last.v,dir,peakT:cT,peak:cV-last.v,now:R[T-1]-last.v,pullback:cV-R[T-1],days:T-1-last.t,amps};
+}
+// Swing state as known at day t: last turning point confirmed on or before t. Returns +1/-1 (direction of the swing from that turn) or 0.
+function swingDirAt(sw,t){let e=null;for(let i=sw.ext.length-1;i&gt;=0;i--){if((sw.ext[i].conf||0)&lt;=t){e=sw.ext[i];break}}if(!e)return 0;const d=sw.R[t]-e.v;return d&gt;0?1:d&lt;0?-1:0}
+function params(){return {h:+hEl.value,k:+kEl.value,lam:Math.exp(Math.log(0.5)/+hlEl.value)}}
+function compute(){
+  const {h,k,lam}=params();
+  let x=F;
+  if(mode===&#x27;mean&#x27;){x=new Array(T).fill(0);for(let t=0;t&lt;T;t++){let s=0;for(let j=0;j&lt;N;j++)s+=dY[j][t];x[t]=s/N}}
+  const out=[];
+  for(let i=0;i&lt;N;i++){const r=runCusum(dY[i],x,h,k,lam,mode===&#x27;beta&#x27;);r.i=i;r.c=C[i];out.push(r)}
+  res={rows:out,h};pairs=null;epi=null;cntCache={};
+}
+function computePairs(){
+  const {h,k,lam}=params();
+  pairs=[];
+  for(let i=0;i&lt;N;i++){pairs.push([]);for(let j=0;j&lt;N;j++){
+    if(i===j){pairs[i].push(null);continue}
+    const r=runCusum(dY[i],dY[j],h,k,lam,mode===&#x27;beta&#x27;);pairs[i].push(r);
+  }}
+}
+let order=[];
+function renderMatrix(){
+  if(!pairs)computePairs();
+  order=[...res.rows].sort((a,b)=&gt;b.score-a.score).map(r=&gt;r.i);
+  const cv=document.getElementById(&#x27;cMat&#x27;);
+  const dpr=window.devicePixelRatio||1,W=cv.clientWidth;const lab=34,cell=Math.max(8,Math.floor((W-lab)/N)),H=lab+cell*N;
+  cv.style.height=H+&#x27;px&#x27;;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);const g=cv.getContext(&#x27;2d&#x27;);g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);
+  const h=res.h,un=css(&#x27;--under&#x27;),ou=css(&#x27;--out&#x27;),pn=css(&#x27;--panel&#x27;),mu=css(&#x27;--muted&#x27;),fg=css(&#x27;--fg&#x27;);
+  const mix=(a,b,t)=&gt;{const p=s=&gt;s.match(/\w\w/g).map(v=&gt;parseInt(v,16));const A=p(a),B=p(b);return `rgb(${A.map((v,i)=&gt;Math.round(v+(B[i]-v)*t)).join(&#x27;,&#x27;)})`};
+  const span=h*1.3;
+  g.font=&#x27;10px &#x27;+css(&#x27;--mono&#x27;);g.fillStyle=mu;
+  for(let a=0;a&lt;N;a++){
+    const i=order[a];
+    g.textAlign=&#x27;right&#x27;;g.textBaseline=&#x27;middle&#x27;;g.fillText(C[i],lab-4,lab+a*cell+cell/2);
+    g.save();g.translate(lab+a*cell+cell/2,lab-4);g.rotate(-Math.PI/2);g.textAlign=&#x27;left&#x27;;g.fillText(C[i],0,0);g.restore();
+  }
+  g.textBaseline=&#x27;alphabetic&#x27;;
+  for(let a=0;a&lt;N;a++)for(let b=0;b&lt;N;b++){
+    const i=order[a],j=order[b],x=lab+b*cell,y=lab+a*cell;
+    if(i===j){g.fillStyle=css(&#x27;--line2&#x27;);g.fillRect(x,y,cell,cell);continue}
+    const s=pairs[i][j].score,t=Math.min(1,Math.abs(s)/span);
+    g.fillStyle=mix(pn,s&gt;0?un:ou,Math.pow(t,0.8));g.fillRect(x,y,cell,cell);
+    if(Math.abs(s)&gt;=h){g.strokeStyle=fg;g.lineWidth=1;g.strokeRect(x+.5,y+.5,cell-1,cell-1)}
+  }
+  if(pairSel){const a=order.indexOf(pairSel[0]),b=order.indexOf(pairSel[1]);g.strokeStyle=css(&#x27;--accent&#x27;);g.lineWidth=2;g.strokeRect(lab+b*cell+1,lab+a*cell+1,cell-2,cell-2)}
+  cv._geom={lab,cell};
+}
+const matCv=document.getElementById(&#x27;cMat&#x27;),tip=document.getElementById(&#x27;tip&#x27;);
+function cellAt(ev){const r=matCv.getBoundingClientRect(),{lab,cell}=matCv._geom||{};if(!cell)return null;const b=Math.floor((ev.clientX-r.left-lab)/cell),a=Math.floor((ev.clientY-r.top-lab)/cell);if(a&lt;0||b&lt;0||a&gt;=N||b&gt;=N||a===b)return null;return [order[a],order[b],ev.clientX-r.left,ev.clientY-r.top]}
+matCv.addEventListener(&#x27;pointermove&#x27;,ev=&gt;{const c=cellAt(ev);if(!c){tip.hidden=true;return}const p=pairs[c[0]][c[1]];tip.hidden=false;tip.style.left=c[2]+14+&#x27;px&#x27;;tip.style.top=c[3]+10+&#x27;px&#x27;;tip.textContent=`${C[c[0]]} vs ${C[c[1]]}  S=${p.score.toFixed(1)}  ${p.cum&gt;0?&#x27;+&#x27;:&#x27;&#x27;}${p.cum.toFixed(0)}bp / ${p.days}d`});
+matCv.addEventListener(&#x27;pointerleave&#x27;,()=&gt;tip.hidden=true);
+matCv.addEventListener(&#x27;click&#x27;,ev=&gt;{const c=cellAt(ev);if(!c)return;pairSel=[c[0],c[1]];renderMatrix();renderDetail()});
+
+const hEl=document.getElementById(&#x27;h&#x27;),kEl=document.getElementById(&#x27;k&#x27;),hlEl=document.getElementById(&#x27;hl&#x27;);
+const tb=document.querySelector(&#x27;#tbl tbody&#x27;);
+function status(r){
+  const h=res.h;const a=Math.abs(r.score);
+  if(a&gt;=h||r.alarmToday)return r.score&gt;0?[&#x27;Alarm · under&#x27;,&#x27;u&#x27;]:[&#x27;Alarm · out&#x27;,&#x27;o&#x27;];
+  if(a&gt;=0.6*h)return r.score&gt;0?[&#x27;Watch · under&#x27;,&#x27;u&#x27;]:[&#x27;Watch · out&#x27;,&#x27;o&#x27;];
+  return [&#x27;In line&#x27;,&#x27;n&#x27;];
+}
+function renderTable(){
+  const rows=[...res.rows].sort((a,b)=&gt;b.score-a.score);
+  const h=res.h,span=Math.max(h*1.2,...rows.map(r=&gt;Math.abs(r.score)));
+  tb.innerHTML=rows.map(r=&gt;{
+    const pct=Math.abs(r.score)/span*50;
+    const bar=r.score&gt;=0?`&lt;i style=&quot;left:50%;width:${pct.toFixed(1)}%;background:var(--under)&quot;&gt;&lt;/i&gt;`:`&lt;i style=&quot;right:50%;width:${pct.toFixed(1)}%;background:var(--out)&quot;&gt;&lt;/i&gt;`;
+    const th=h/span*50;
+    const [lab,cls]=status(r);
+    return `&lt;tr data-i=&quot;${r.i}&quot; class=&quot;${r.i===sel?&#x27;sel&#x27;:&#x27;&#x27;} ${r.score&gt;0?&#x27;u&#x27;:&#x27;&#x27;}&quot;&gt;&lt;td class=&quot;name&quot;&gt;${NAMES[r.c]}&lt;/td&gt;&lt;td&gt;${r.beta.toFixed(2)}&lt;/td&gt;&lt;td&gt;&lt;div class=&quot;bar&quot;&gt;&lt;span class=&quot;mid&quot;&gt;&lt;/span&gt;&lt;span class=&quot;th&quot; style=&quot;left:${(50-th).toFixed(1)}%&quot;&gt;&lt;/span&gt;&lt;span class=&quot;th&quot; style=&quot;left:${(50+th).toFixed(1)}%&quot;&gt;&lt;/span&gt;${bar}&lt;/div&gt;&lt;/td&gt;&lt;td style=&quot;color:${r.cum&gt;0?&#x27;var(--under)&#x27;:&#x27;var(--out)&#x27;}&quot;&gt;${r.cum&gt;0?&#x27;+&#x27;:&#x27;&#x27;}${r.cum.toFixed(0)}&lt;/td&gt;&lt;td&gt;${r.days}&lt;/td&gt;&lt;td style=&quot;color:${r.sw.now&gt;0?&#x27;var(--under)&#x27;:&#x27;var(--out)&#x27;}&quot; title=&quot;peak ${r.sw.peak.toFixed(0)} bp, pullback ${r.sw.pullback.toFixed(0)} bp&quot;&gt;${r.sw.now&gt;0?&#x27;+&#x27;:&#x27;&#x27;}${r.sw.now.toFixed(0)}${Math.sign(r.sw.now)!==Math.sign(r.cum)&amp;&amp;r.cum!==0?&#x27; &lt;span style=&quot;color:var(--warn)&quot; title=&quot;CUSUM move runs against the larger swing&quot;&gt;⇄&lt;/span&gt;&#x27;:&#x27;&#x27;}&lt;/td&gt;&lt;td&gt;${r.sw.days}&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;pill ${cls}&quot;&gt;${lab}&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;`;
+  }).join(&#x27;&#x27;);
+}
+tb.addEventListener(&#x27;click&#x27;,e=&gt;{const tr=e.target.closest(&#x27;tr&#x27;);if(!tr)return;sel=+tr.dataset.i;renderTable();renderDetail()});
+
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+function setup(cv){const dpr=window.devicePixelRatio||1;if(!cv.dataset.h)cv.dataset.h=cv.getAttribute(&#x27;height&#x27;);const H=+cv.dataset.h,W=cv.clientWidth;cv.style.height=H+&#x27;px&#x27;;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);const g=cv.getContext(&#x27;2d&#x27;);g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);return [g,W,H]}
+function renderDetail(){
+  let r,title;
+  if(view===&#x27;matrix&#x27;&amp;&amp;pairSel){if(!pairs)computePairs();r=pairs[pairSel[0]][pairSel[1]];title=`${NAMES[C[pairSel[0]]]} vs ${NAMES[C[pairSel[1]]]}`}
+  else{r=res.rows[sel];title=NAMES[r.c]}
+  const h=res.h,L=Math.min(T,Math.max(250,T-r.sw.start+30)),s0=T-L;
+  document.getElementById(&#x27;detTitle&#x27;).textContent=title+&#x27; · last &#x27;+L+&#x27; days&#x27;;
+  document.getElementById(&#x27;sBeta&#x27;).textContent=r.beta.toFixed(2);
+  document.getElementById(&#x27;sCum&#x27;).textContent=(r.cum&gt;0?&#x27;+&#x27;:&#x27;&#x27;)+r.cum.toFixed(0)+&#x27; bp&#x27;;
+  document.getElementById(&#x27;sDays&#x27;).textContent=r.days+&#x27; d&#x27;;
+  document.getElementById(&#x27;sAlarms&#x27;).textContent=r.alarms;
+  document.getElementById(&#x27;sSwing&#x27;).textContent=(r.sw.now&gt;0?&#x27;+&#x27;:&#x27;&#x27;)+r.sw.now.toFixed(0)+&#x27; bp · &#x27;+r.sw.days+&#x27; d&#x27;;
+  document.getElementById(&#x27;sSwingPk&#x27;).textContent=(r.sw.peak&gt;0?&#x27;+&#x27;:&#x27;&#x27;)+r.sw.peak.toFixed(0)+&#x27; · &#x27;+(r.sw.pullback&gt;=0?&#x27;−&#x27;:&#x27;+&#x27;)+Math.abs(r.sw.pullback).toFixed(0)+&#x27; bp&#x27;;
+  const fg=css(&#x27;--fg&#x27;),mu=css(&#x27;--muted&#x27;),ln=css(&#x27;--line&#x27;),un=css(&#x27;--under&#x27;),ou=css(&#x27;--out&#x27;),ub=css(&#x27;--under-bg&#x27;),ob=css(&#x27;--out-bg&#x27;);
+  const pad={l:44,r:12,t:12,b:22};
+  // residual path
+  {
+    const cv=document.getElementById(&#x27;cResid&#x27;);const [g,W,H]=setup(cv);
+    const base=r.sw.R[s0];const data=r.sw.R.slice(s0).map(v=&gt;v-base);const mn=Math.min(0,...data),mx=Math.max(0,...data),rg=(mx-mn)||1;
+    const X=t=&gt;pad.l+(t-s0)/(L-1)*(W-pad.l-pad.r),Y=v=&gt;pad.t+(mx-v)/rg*(H-pad.t-pad.b);
+    if(r.since&gt;s0||true){const a=Math.max(r.since,s0);g.fillStyle=r.cum&gt;0?ub:ob;g.fillRect(X(a),pad.t,X(T-1)-X(a),H-pad.t-pad.b)}
+    g.strokeStyle=ln;g.lineWidth=1;[mn,0,mx].forEach(v=&gt;{g.beginPath();g.moveTo(pad.l,Y(v));g.lineTo(W-pad.r,Y(v));g.stroke();g.fillStyle=mu;g.font=&#x27;11px &#x27;+css(&#x27;--mono&#x27;);g.textAlign=&#x27;right&#x27;;g.fillText(v.toFixed(0),pad.l-6,Y(v)+4)});
+    r.alarmList.forEach(a=&gt;{if(a.t&lt;s0)return;g.strokeStyle=a.dir&gt;0?un:ou;g.setLineDash([2,3]);g.beginPath();g.moveTo(X(a.t),pad.t);g.lineTo(X(a.t),H-pad.b);g.stroke();g.setLineDash([])});
+    // swing structure: turning points joined by a thin line, current swing&#x27;s start marked
+    g.strokeStyle=css(&#x27;--accent&#x27;);g.lineWidth=1;g.globalAlpha=.7;g.beginPath();let first=true;
+    r.sw.ext.forEach(e=&gt;{if(e.t&lt;s0)return;const x=X(e.t),y=Y(e.v-base);first?g.moveTo(x,y):g.lineTo(x,y);first=false});
+    g.lineTo(X(r.sw.peakT),Y(r.sw.R[r.sw.peakT]-base));g.stroke();g.globalAlpha=1;
+    g.strokeStyle=fg;g.lineWidth=1.5;g.beginPath();data.forEach((v,j)=&gt;{j?g.lineTo(X(s0+j),Y(v)):g.moveTo(X(s0+j),Y(v))});g.stroke();
+    r.sw.ext.forEach(e=&gt;{if(e.t&lt;s0)return;g.fillStyle=css(&#x27;--accent&#x27;);g.beginPath();g.arc(X(e.t),Y(e.v-base),3,0,2*Math.PI);g.fill()});
+    {const x=X(r.sw.start),y=Y(r.sw.startV-base);g.strokeStyle=css(&#x27;--accent&#x27;);g.lineWidth=2;g.beginPath();g.arc(x,y,5,0,2*Math.PI);g.stroke();g.fillStyle=mu;g.font=&#x27;11px &#x27;+css(&#x27;--sans&#x27;);g.textAlign=x&lt;W/2?&#x27;left&#x27;:&#x27;right&#x27;;g.fillText(&#x27;swing start, &#x27;+r.sw.days+&#x27; d ago&#x27;,x+(x&lt;W/2?8:-8),y-8)}
+    g.fillStyle=mu;g.font=&#x27;11px &#x27;+css(&#x27;--sans&#x27;);g.textAlign=&#x27;left&#x27;;g.fillText(&#x27;cum. residual, bp (not reset at alarms) · dots = confirmed turning points&#x27;,pad.l,H-6);g.textAlign=&#x27;right&#x27;;g.fillText(&#x27;today&#x27;,W-pad.r,H-6);
+  }
+  // cusum
+  {
+    const cv=document.getElementById(&#x27;cCusum&#x27;);const [g,W,H]=setup(cv);
+    const sp=r.spPath.slice(s0),sn=r.snPath.slice(s0);const mx=Math.max(h*1.15,...sp,...sn);
+    const X=t=&gt;pad.l+(t-s0)/(L-1)*(W-pad.l-pad.r),Y=v=&gt;pad.t+(mx-v)/(2*mx)*(H-pad.t-pad.b);
+    g.strokeStyle=ln;g.beginPath();g.moveTo(pad.l,Y(0));g.lineTo(W-pad.r,Y(0));g.stroke();
+    g.setLineDash([4,3]);g.strokeStyle=mu;[h,-h].forEach(v=&gt;{g.beginPath();g.moveTo(pad.l,Y(v));g.lineTo(W-pad.r,Y(v));g.stroke()});g.setLineDash([]);
+    g.fillStyle=mu;g.font=&#x27;11px &#x27;+css(&#x27;--mono&#x27;);g.textAlign=&#x27;right&#x27;;g.fillText(&#x27;+h&#x27;,pad.l-6,Y(h)+4);g.fillText(&#x27;−h&#x27;,pad.l-6,Y(-h)+4);g.fillText(&#x27;0&#x27;,pad.l-6,Y(0)+4);
+    g.fillStyle=un;g.beginPath();g.moveTo(X(s0),Y(0));sp.forEach((v,j)=&gt;g.lineTo(X(s0+j),Y(v)));g.lineTo(X(T-1),Y(0));g.closePath();g.globalAlpha=.85;g.fill();
+    g.fillStyle=ou;g.beginPath();g.moveTo(X(s0),Y(0));sn.forEach((v,j)=&gt;g.lineTo(X(s0+j),Y(-v)));g.lineTo(X(T-1),Y(0));g.closePath();g.fill();g.globalAlpha=1;
+    g.fillStyle=mu;g.font=&#x27;11px &#x27;+css(&#x27;--sans&#x27;);g.textAlign=&#x27;left&#x27;;g.fillText(&#x27;S⁺ up / −S⁻ down&#x27;,pad.l,H-6);
+  }
+  renderContext(r,view===&#x27;matrix&#x27;&amp;&amp;pairSel?null:res.rows);
+}
+// ---- Context: is today&#x27;s reading rare, fresh, and does it usually continue? ----
+const pct=(arr,v)=&gt;{let c=0;for(const a of arr)if(a&lt;=v)c++;return 100*c/arr.length};
+const q=(arr,p)=&gt;{const a=[...arr].sort((x,y)=&gt;x-y);if(!a.length)return NaN;const i=(a.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return a[lo]+(a[hi]-a[lo])*(i-lo)};
+
+// Episodes: first day each run&#x27;s signed S crosses `level` in direction `dir`; returns start indices (excluding the current run)
+function episodes(r,level,dir,before){
+  const out=[],al=new Set(r.alarmList.map(a=&gt;a.t));let armed=true;
+  for(let t=0;t&lt;before;t++){
+    const s=(r.spPath[t]-r.snPath[t])*dir;
+    if(armed&amp;&amp;s&gt;=level){out.push(t);armed=false}
+    if(al.has(t)||s&lt;=0)armed=true;
+  }
+  return out;
+}
+function renderContext(r,panel){
+  const h=res.h,sc=r.score,dir=sc&gt;=0?1:-1,lvl=Math.abs(sc),Hs=[5,10,20,40];
+  const absS=r.spPath.map((v,t)=&gt;Math.abs(v-r.snPath[t]));
+  const R=cumsum(r.ePath),H=Math.max(...Hs);
+  // own-name analogs (exclude current run and last H days so forward paths are complete)
+  const cut=Math.min(r.since,T-H-1);
+  const own=episodes(r,lvl,dir,cut);
+  // pooled analogs across the panel, same direction and level
+  let pooled=[];
+  if(panel)for(const rr of panel){const Rr=cumsum(rr.ePath);const c=rr===r?cut:T-H-1;for(const t of episodes(rr,lvl,dir,c))pooled.push({R:Rr,t,vol:Math.sqrt(rr.ePath.slice(Math.max(0,t-60),t).reduce((a,b)=&gt;a+b*b,0)/60||1)})}
+  else pooled=own.map(t=&gt;({R,t,vol:1}));
+  const fwd=(set,hz)=&gt;set.map(e=&gt;(e.R[e.t+hz]-e.R[e.t])*dir); // + = continued in drift direction
+  // run-length and speed context
+  // past episodes&#x27; age at the moment they crossed today&#x27;s level, measured from their own onset (last zero crossing)
+  const runLens=own.map(t=&gt;{let o=t;while(o&gt;0&amp;&amp;dir*(r.spPath[o-1]-r.snPath[o-1])&gt;0)o--;return t-o+1});
+  const speed=r.cum/Math.max(1,r.days);
+  // vol regime
+  const vol60=[];for(let t=60;t&lt;T;t++){let v=0;for(let k=t-60;k&lt;t;k++)v+=r.ePath[k]**2;vol60.push(Math.sqrt(v/60))}
+  const volNow=vol60[vol60.length-1];
+  // AR(1) half-life on residual level (demeaned cumulative residual)
+  let hl=NaN;{const m=R.reduce((a,b)=&gt;a+b,0)/T;const x=R.map(v=&gt;v-m);let sxy=0,sxx=0;for(let t=1;t&lt;T;t++){sxy+=x[t]*x[t-1];sxx+=x[t-1]**2}const phi=sxy/sxx;if(phi&gt;0&amp;&amp;phi&lt;1)hl=Math.log(0.5)/Math.log(phi)}
+  // beta drift during run
+  const bNow=r.betaPath[T-1],bStart=r.betaPath[Math.max(0,r.since)];
+  // breadth
+  let same=0;if(panel)for(const rr of panel){if(rr!==r&amp;&amp;Math.sign(rr.score)===dir&amp;&amp;Math.abs(rr.score)&gt;=0.6*h)same++}
+  const yrs=T/252,nOwn=own.length;
+  const tiles=[
+    [&#x27;|S| percentile, own&#x27;,pct(absS,lvl).toFixed(0)+&#x27;%&#x27;],
+    [&#x27;|S| percentile, panel&#x27;,panel?pct(panel.flatMap(rr=&gt;rr.spPath.map((v,t)=&gt;Math.abs(v-rr.snPath[t]))),lvl).toFixed(0)+&#x27;%&#x27;:&#x27;–&#x27;],
+    [&#x27;Episodes ≥ this, own&#x27;,nOwn+&#x27; · &#x27;+(nOwn/yrs).toFixed(1)+&#x27;/yr&#x27;],
+    [&#x27;Run length pctile&#x27;,runLens.length?pct(runLens,r.days).toFixed(0)+&#x27;%&#x27;:&#x27;–&#x27;],
+    [&#x27;Speed, bp/day&#x27;,(speed&gt;0?&#x27;+&#x27;:&#x27;&#x27;)+speed.toFixed(2)],
+    [&#x27;Resid. vol pctile&#x27;,pct(vol60,volNow).toFixed(0)+&#x27;%&#x27;],
+    [&#x27;AR(1) half-life&#x27;,isFinite(hl)?hl.toFixed(0)+&#x27; d&#x27;:&#x27;none&#x27;],
+    [&#x27;β drift in run&#x27;,(bNow-bStart&gt;=0?&#x27;+&#x27;:&#x27;&#x27;)+(bNow-bStart).toFixed(2)],
+    [&#x27;Peers same way&#x27;,panel?same+&#x27; / &#x27;+(N-1):&#x27;–&#x27;],
+    [&#x27;Swing pctile, own&#x27;,r.sw.amps.length?pct(r.sw.amps,Math.abs(r.sw.peak)).toFixed(0)+&#x27;%&#x27;:&#x27;–&#x27;]
+  ];
+  document.getElementById(&#x27;ctxTiles&#x27;).innerHTML=tiles.map(([l,v])=&gt;`&lt;div class=&quot;stat&quot;&gt;&lt;b style=&quot;font-size:16px&quot;&gt;${v}&lt;/b&gt;&lt;span&gt;${l}&lt;/span&gt;&lt;/div&gt;`).join(&#x27;&#x27;);
+  // analog table
+  let rows=`&lt;tr&gt;&lt;th&gt;Fwd&lt;/th&gt;&lt;th&gt;n&lt;/th&gt;&lt;th&gt;P(continue)&lt;/th&gt;&lt;th&gt;Median bp&lt;/th&gt;&lt;th&gt;IQR&lt;/th&gt;&lt;/tr&gt;`;
+  for(const hz of Hs){const f=fwd(pooled,hz);if(!f.length){rows+=`&lt;tr&gt;&lt;td&gt;${hz}d&lt;/td&gt;&lt;td colspan=&quot;4&quot; style=&quot;text-align:center;color:var(--muted)&quot;&gt;no analogs&lt;/td&gt;&lt;/tr&gt;`;continue}
+    const pc=100*f.filter(v=&gt;v&gt;0).length/f.length,md=q(f,.5),lo=q(f,.25),hi=q(f,.75);
+    rows+=`&lt;tr&gt;&lt;td&gt;${hz}d&lt;/td&gt;&lt;td&gt;${f.length}&lt;/td&gt;&lt;td style=&quot;color:${pc&gt;=55?&#x27;var(--under)&#x27;:pc&lt;=45?&#x27;var(--out)&#x27;:&#x27;inherit&#x27;}&quot;&gt;${pc.toFixed(0)}%&lt;/td&gt;&lt;td&gt;${(md&gt;0?&#x27;+&#x27;:&#x27;&#x27;)+md.toFixed(0)}&lt;/td&gt;&lt;td&gt;${lo.toFixed(0)} … ${hi.toFixed(0)}&lt;/td&gt;&lt;/tr&gt;`}
+  document.getElementById(&#x27;analogTbl&#x27;).innerHTML=rows;
+  // fan chart of analog forward paths (median, IQR) in drift direction
+  {const cv=document.getElementById(&#x27;cFan&#x27;);const [g,W,Hh]=setup(cv);const pad={l:40,r:10,t:10,b:22};
+   const med=[],lo=[],hi=[];for(let k=0;k&lt;=H;k++){const f=fwd(pooled,k);med.push(f.length?q(f,.5):0);lo.push(f.length?q(f,.25):0);hi.push(f.length?q(f,.75):0)}
+   const mn=Math.min(0,...lo),mx=Math.max(0,...hi),rg=(mx-mn)||1;const X=k=&gt;pad.l+k/H*(W-pad.l-pad.r),Y=v=&gt;pad.t+(mx-v)/rg*(Hh-pad.t-pad.b);
+   const ln=css(&#x27;--line&#x27;),mu=css(&#x27;--muted&#x27;),ac=css(&#x27;--accent&#x27;);
+   g.strokeStyle=ln;g.beginPath();g.moveTo(pad.l,Y(0));g.lineTo(W-pad.r,Y(0));g.stroke();
+   g.fillStyle=ac;g.globalAlpha=.18;g.beginPath();hi.forEach((v,k)=&gt;k?g.lineTo(X(k),Y(v)):g.moveTo(X(k),Y(v)));for(let k=H;k&gt;=0;k--)g.lineTo(X(k),Y(lo[k]));g.closePath();g.fill();g.globalAlpha=1;
+   g.strokeStyle=ac;g.lineWidth=1.6;g.beginPath();med.forEach((v,k)=&gt;k?g.lineTo(X(k),Y(v)):g.moveTo(X(k),Y(v)));g.stroke();
+   g.fillStyle=mu;g.font=&#x27;11px &#x27;+css(&#x27;--mono&#x27;);g.textAlign=&#x27;right&#x27;;g.fillText(mx.toFixed(0),pad.l-5,Y(mx)+4);g.fillText(mn.toFixed(0),pad.l-5,Y(mn)+4);g.fillText(&#x27;0&#x27;,pad.l-5,Y(0)+4);
+   g.font=&#x27;11px &#x27;+css(&#x27;--sans&#x27;);g.textAlign=&#x27;left&#x27;;g.fillText(&#x27;analog forward residual, bp, + = drift continues · median &amp; IQR&#x27;,pad.l,Hh-6);g.textAlign=&#x27;right&#x27;;g.fillText(H+&#x27;d&#x27;,W-pad.r,Hh-6)}
+  // verdict text
+  const f20=fwd(pooled,20),pc20=f20.length?100*f20.filter(v=&gt;v&gt;0).length/f20.length:NaN;
+  const bits=[];
+  bits.push(`Today&#x27;s |S| of ${lvl.toFixed(1)} sits at the ${pct(absS,lvl).toFixed(0)}th percentile of this name&#x27;s history; ${nOwn} prior episode${nOwn===1?&#x27;&#x27;:&#x27;s&#x27;} reached this level in the same direction (${(nOwn/yrs).toFixed(1)} per year).`);
+  if(isFinite(pc20))bits.push(`Across ${f20.length} pooled analogs, the drift continued over the next 20 days ${pc20.toFixed(0)}% of the time (median ${(q(f20,.5)&gt;0?&#x27;+&#x27;:&#x27;&#x27;)+q(f20,.5).toFixed(0)} bp), so the empirical odds of mean reversion from here are about ${(100-pc20).toFixed(0)}%.`);
+  bits.push(`The run is ${r.days} days old (${runLens.length?pct(runLens,r.days).toFixed(0)+&#x27;th percentile of past run lengths&#x27;:&#x27;no past runs&#x27;}), moving ${Math.abs(speed).toFixed(2)} bp/day, in a ${pct(vol60,volNow)&gt;75?&#x27;high&#x27;:pct(vol60,volNow)&lt;25?&#x27;low&#x27;:&#x27;normal&#x27;}-vol regime${panel?`, with ${same} peer${same===1?&#x27;&#x27;:&#x27;s&#x27;} drifting the same way`:&#x27;&#x27;}.`);
+  if(r.sw.days&gt;r.days+10){const same=Math.sign(r.sw.now)===Math.sign(r.cum)||r.cum===0;const swPct=r.sw.amps.length?pct(r.sw.amps,Math.abs(r.sw.peak)).toFixed(0)+&#x27;th&#x27;:&#x27;–&#x27;;
+    if(same)bits.push(`The CUSUM onset understates the move: the cumulative residual has been ${r.sw.now&gt;0?&#x27;rising&#x27;:&#x27;falling&#x27;} since its last confirmed turn ${r.sw.days} days ago, ${(r.sw.now&gt;0?&#x27;+&#x27;:&#x27;&#x27;)+r.sw.now.toFixed(0)} bp in total (peak ${(r.sw.peak&gt;0?&#x27;+&#x27;:&#x27;&#x27;)+r.sw.peak.toFixed(0)}, pulled back ${Math.abs(r.sw.pullback).toFixed(0)}), a swing at the ${swPct} percentile of this name&#x27;s completed swings.`);
+    else bits.push(`Context cuts the other way: this ${r.days}-day CUSUM move is a pullback inside a larger swing in the opposite direction, ${(r.sw.now&gt;0?&#x27;+&#x27;:&#x27;&#x27;)+r.sw.now.toFixed(0)} bp over ${r.sw.days} days from the last confirmed turn (peak ${(r.sw.peak&gt;0?&#x27;+&#x27;:&#x27;&#x27;)+r.sw.peak.toFixed(0)}, ${swPct} percentile). ${Math.abs(r.sw.pullback)/Math.abs(r.sw.peak||1)&gt;0.5?&#x27;The retracement is already more than half the swing, so the bigger move may be turning.&#x27;:&#x27;The retracement is still small relative to the swing.&#x27;}`)}
+  if(Math.abs(bNow-bStart)&gt;0.15)bits.push(`Beta moved ${(bNow-bStart).toFixed(2)} during the run; part of this &quot;break&quot; may be a beta change rather than idiosyncratic drift.`);
+  document.getElementById(&#x27;ctxNote&#x27;).textContent=bits.join(&#x27; &#x27;);
+}
+// ---- Episode library: for every series, first crossings of each |S| bucket, with forward residuals and context ----
+const HZ=[5,10,20,40],BSTEP=0.5;
+let epi=null;   // {single:[ep], pair:[ep]}  ep={t,sid,legs,f[4],aB,vB}
+const ageBin=d=&gt;d&lt;=5?0:d&lt;=20?1:2, volBin=v=&gt;v&lt;0.8?0:v&lt;=1.25?1:2;
+function seriesEpisodes(sr,sid,legs,out,h){
+  const R=cumsum(sr.ePath);
+  // point-in-time vol regime: 60d residual vol over 250d residual vol
+  const e2=sr.ePath.map(v=&gt;v*v),cs=cumsum(e2);const vr=t=&gt;{if(t&lt;250)return 1;const v60=(cs[t]-cs[t-60])/60,v250=(cs[t]-cs[t-250])/250;return Math.sqrt(v60/(v250||1e-9))};
+  const nb=Math.floor(h/BSTEP);const armed=new Array(2*nb+2).fill(true);const onset=[0,0];
+  const al=new Set(sr.alarmList.map(a=&gt;a.t));
+  for(let t=0;t&lt;T;t++){
+    const sv=sr.spPath[t]-sr.snPath[t];
+    for(const dir of [1,-1]){const sg=sv*dir,d=dir&gt;0?0:1;
+      if(sg&lt;=0)onset[d]=t+1;
+      for(let b=1;b&lt;=nb;b++){const k=d*nb+b,lvl=b*BSTEP;
+        if(armed[k]&amp;&amp;sg&gt;=lvl){armed[k]=false;out.push({t,sid,legs,dir,lvl,f:HZ.map(H=&gt;t+H&lt;T?(R[t+H]-R[t])*dir:NaN),aB:ageBin(t-onset[d]+1),vB:volBin(vr(t))})}
+        if(al.has(t)||sg&lt;=0)armed[k]=true;
+      }}
+  }
+}
+function buildEpisodes(){
+  const h=res.h;epi={single:[],pair:[]};
+  res.rows.forEach((r,i)=&gt;seriesEpisodes(r,i,[i],epi.single,h));
+  if(!pairs)computePairs();
+  for(let i=0;i&lt;N;i++)for(let j=0;j&lt;N;j++)if(i!==j)seriesEpisodes(pairs[i][j],i*N+j,[i,j],epi.pair,h);
+  epi.single.sort((a,b)=&gt;a.t-b.t);epi.pair.sort((a,b)=&gt;a.t-b.t);
+}
+function bucketOf(L,h){return Math.max(BSTEP,Math.min(Math.floor(h/BSTEP)*BSTEP,Math.floor(L/BSTEP)*BSTEP))}
+let pool=&#x27;all&#x27;,cond=false,universe=&#x27;names&#x27;;
+function anaParams(){const H=+document.querySelector(&#x27;#hzSeg [aria-pressed=true]&#x27;).dataset.h;return {H,hi:HZ.indexOf(H),pRev:+document.getElementById(&#x27;pRev&#x27;).value/100,pMom:+document.getElementById(&#x27;pMom&#x27;).value/100,minS:+document.getElementById(&#x27;minS&#x27;).value,nMin:+document.getElementById(&#x27;nMin&#x27;).value,maxOpen:+document.getElementById(&#x27;maxOpen&#x27;).value}}
+const legsAttr=legs=&gt;legs.map(i=&gt;attrOf(i,pool)).join(&#x27;/&#x27;);
+// Count table keyed by dir|bucket|attr|ageBin|volBin; each episode is added under 4 keys (with/without attr, with/without context) so we can widen.
+function keyOf(dir,lvl,attr,aB,vB){return dir+&#x27;|&#x27;+lvl+&#x27;|&#x27;+attr+&#x27;|&#x27;+aB+&#x27;|&#x27;+vB}
+function addCount(cnt,ep,hi,keepF=true){const c=ep.f[hi]&gt;0?1:0,a=legsAttr(ep.legs),v=ep.f[hi];
+  for(const attr of [a,&#x27;*&#x27;])for(const ctx of [[ep.aB,ep.vB],[&#x27;*&#x27;,&#x27;*&#x27;]]){const k=keyOf(ep.dir,ep.lvl,attr,ctx[0],ctx[1]);const o=cnt[k]||(cnt[k]={n:0,c:0,f:[]});o.n++;o.c+=c;if(keepF)o.f.push(v)}}
+// Query with widening: try (attr,ctx) → (*,ctx) → (attr,*) → (*,*) until n ≥ nMin
+function lookup(cnt,dir,lvl,attr,aB,vB,nMin,wantMed=true){
+  // candidate keys from most to least specific; the first with enough analogs wins and the note says what was relaxed
+  const tries=[];
+  if(cond&amp;&amp;pool!==&#x27;all&#x27;)tries.push([attr,aB,vB,&#x27;&#x27;]);
+  if(cond)tries.push([&#x27;*&#x27;,aB,vB,pool!==&#x27;all&#x27;?&#x27;pool widened&#x27;:&#x27;&#x27;]);
+  if(pool!==&#x27;all&#x27;)tries.push([attr,&#x27;*&#x27;,&#x27;*&#x27;,cond?&#x27;context dropped&#x27;:&#x27;&#x27;]);
+  tries.push([&#x27;*&#x27;,&#x27;*&#x27;,&#x27;*&#x27;,(cond||pool!==&#x27;all&#x27;)?&#x27;widened&#x27;:&#x27;&#x27;]);
+  for(const [a,x,y,note] of tries){const o=cnt[keyOf(dir,lvl,a,x,y)];if(o&amp;&amp;o.n&gt;=nMin)return {n:o.n,pc:o.c/o.n,pr:1-o.c/o.n,med:wantMed?q(o.f,.5):NaN,note}}
+  return {n:0};
+}
+function fullCounts(store,hi,excludeSid,since){const cnt={};for(const ep of store){if(isNaN(ep.f[hi]))continue;if(ep.sid===excludeSid&amp;&amp;ep.t&gt;=since)continue;addCount(cnt,ep,hi)}return cnt}
+let cntCache={};
+function analogStats(kind,sr,sid,legs,P){
+  const h=res.h,dir=sr.score&gt;=0?1:-1,L=Math.abs(sr.score),lvl=bucketOf(L,h);
+  const ck=kind+&#x27;|&#x27;+P.hi+&#x27;|&#x27;+pool+&#x27;|&#x27;+cond;
+  if(!cntCache[ck])cntCache[ck]=fullCounts(kind===&#x27;single&#x27;?epi.single:epi.pair,P.hi,-1,0);
+  // own current run would be in the pool only if already complete; it is excluded by construction (t+H&lt;T fails for a live run)
+  const aB=ageBin(sr.days),vB=cond?volBinNow(sr):&#x27;*&#x27;;
+  const r=lookup(cntCache[ck],dir,lvl,legsAttr(legs),cond?aB:&#x27;*&#x27;,vB,P.nMin);r.dir=dir;return r;
+}
+function volBinNow(sr){const e=sr.ePath;let a=0,b=0;for(let t=T-60;t&lt;T;t++)a+=e[t]*e[t];for(let t=T-250;t&lt;T;t++)b+=e[t]*e[t];return volBin(Math.sqrt((a/60)/((b/250)||1e-9)))}
+function renderScanner(){
+  if(!epi)buildEpisodes();
+  const P=anaParams();const fmt=(v,d=0)=&gt;(v&gt;0?&#x27;+&#x27;:&#x27;&#x27;)+v.toFixed(d);
+  const verdict=a=&gt;a.n?(a.pc&gt;=P.pMom?&#x27;follow&#x27;:a.pr&gt;=P.pRev?&#x27;fade&#x27;:null):null;
+  const rowsS=[];
+  res.rows.forEach((r,i)=&gt;{if(Math.abs(r.score)&lt;P.minS)return;const a=analogStats(&#x27;single&#x27;,r,i,[i],P);const v=verdict(a);if(!v)return;
+    const trade=v===&#x27;follow&#x27;?(a.dir&gt;0?&#x27;Short&#x27;:&#x27;Long&#x27;):(a.dir&gt;0?&#x27;Long&#x27;:&#x27;Short&#x27;);
+    rowsS.push({i,name:NAMES[r.c],tag:META[r.c][0]+&#x27; · &#x27;+META[r.c][1],dir:a.dir,S:Math.abs(r.score),days:r.days,a,v,trade:trade+&#x27; &#x27;+r.c+&#x27; vs factor&#x27;,edge:Math.max(a.pc,a.pr)})});
+  const rowsP=[];
+  for(let i=0;i&lt;N;i++)for(let j=i+1;j&lt;N;j++){const pr=pairs[i][j];if(Math.abs(pr.score)&lt;P.minS)continue;const a=analogStats(&#x27;pair&#x27;,pr,i*N+j,[i,j],P);const v=verdict(a);if(!v)continue;
+    const iCheap=a.dir&gt;0;const trade=(v===&#x27;follow&#x27;)===iCheap?`Short ${C[i]} / Long ${C[j]}`:`Long ${C[i]} / Short ${C[j]}`;
+    rowsP.push({i,j,name:C[i]+&#x27; vs &#x27;+C[j],tag:&#x27;&#x27;,dir:a.dir,S:Math.abs(pr.score),days:pr.days,a,v,trade,edge:Math.max(a.pc,a.pr)})}
+  rowsS.sort((x,y)=&gt;y.edge-x.edge);rowsP.sort((x,y)=&gt;y.edge-x.edge);
+  document.getElementById(&#x27;scanStats&#x27;).innerHTML=[[&#x27;Names passing&#x27;,rowsS.length],[&#x27;Pairs passing&#x27;,rowsP.length],[&#x27;Follow / fade&#x27;,rowsS.filter(r=&gt;r.v===&#x27;follow&#x27;).length+rowsP.filter(r=&gt;r.v===&#x27;follow&#x27;).length+&#x27; / &#x27;+(rowsS.filter(r=&gt;r.v===&#x27;fade&#x27;).length+rowsP.filter(r=&gt;r.v===&#x27;fade&#x27;).length)],[&#x27;Horizon · pool&#x27;,P.H+&#x27;d · &#x27;+pool+(cond?&#x27; · ctx&#x27;:&#x27;&#x27;)]].map(([l,v])=&gt;`&lt;div class=&quot;stat&quot;&gt;&lt;b&gt;${v}&lt;/b&gt;&lt;span&gt;${l}&lt;/span&gt;&lt;/div&gt;`).join(&#x27;&#x27;);
+  const hdr=&#x27;&lt;tr&gt;&lt;th&gt;Instrument&lt;/th&gt;&lt;th&gt;|S|&lt;/th&gt;&lt;th&gt;Days&lt;/th&gt;&lt;th&gt;n&lt;/th&gt;&lt;th&gt;P(cont)&lt;/th&gt;&lt;th&gt;Med bp&lt;/th&gt;&lt;th&gt;Trade&lt;/th&gt;&lt;/tr&gt;&#x27;;
+  const row=(r,attr)=&gt;`&lt;tr ${attr}&gt;&lt;td class=&quot;name&quot;&gt;${r.name} &lt;span class=&quot;pill ${r.dir&gt;0?&#x27;u&#x27;:&#x27;o&#x27;}&quot;&gt;${r.dir&gt;0?&#x27;cheap&#x27;:&#x27;rich&#x27;}&lt;/span&gt;${r.tag?` &lt;span style=&quot;font-size:11px;color:var(--muted)&quot;&gt;${r.tag}&lt;/span&gt;`:&#x27;&#x27;}&lt;/td&gt;&lt;td&gt;${r.S.toFixed(1)}&lt;/td&gt;&lt;td&gt;${r.days}&lt;/td&gt;&lt;td&gt;${r.a.n}${r.a.note?` &lt;span style=&quot;font-size:10px;color:var(--warn)&quot; title=&quot;${r.a.note}&quot;&gt;*&lt;/span&gt;`:&#x27;&#x27;}&lt;/td&gt;&lt;td style=&quot;color:${r.v===&#x27;follow&#x27;?&#x27;var(--under)&#x27;:&#x27;var(--out)&#x27;}&quot;&gt;${(100*r.a.pc).toFixed(0)}%&lt;/td&gt;&lt;td&gt;${fmt(r.a.med)}&lt;/td&gt;&lt;td style=&quot;font-family:var(--sans)&quot;&gt;&lt;span class=&quot;pill ${r.v===&#x27;follow&#x27;?&#x27;u&#x27;:&#x27;o&#x27;}&quot;&gt;${r.v}&lt;/span&gt; ${r.trade}&lt;/td&gt;&lt;/tr&gt;`;
+  document.getElementById(&#x27;scanSingles&#x27;).innerHTML=hdr+(rowsS.length?rowsS.slice(0,40).map(r=&gt;row(r,`data-i=&quot;${r.i}&quot;`)).join(&#x27;&#x27;):&#x27;&lt;tr&gt;&lt;td colspan=&quot;7&quot; style=&quot;text-align:center;color:var(--muted)&quot;&gt;nothing passes the filter&lt;/td&gt;&lt;/tr&gt;&#x27;);
+  document.getElementById(&#x27;scanPairs&#x27;).innerHTML=hdr+(rowsP.length?rowsP.slice(0,40).map(r=&gt;row(r,`data-i=&quot;${r.i}&quot; data-j=&quot;${r.j}&quot;`)).join(&#x27;&#x27;):&#x27;&lt;tr&gt;&lt;td colspan=&quot;7&quot; style=&quot;text-align:center;color:var(--muted)&quot;&gt;nothing passes the filter&lt;/td&gt;&lt;/tr&gt;&#x27;);
+}
+document.getElementById(&#x27;scanSingles&#x27;).addEventListener(&#x27;click&#x27;,e=&gt;{const tr=e.target.closest(&#x27;tr[data-i]&#x27;);if(!tr)return;sel=+tr.dataset.i;setView(&#x27;rank&#x27;);renderTable()});
+document.getElementById(&#x27;scanPairs&#x27;).addEventListener(&#x27;click&#x27;,e=&gt;{const tr=e.target.closest(&#x27;tr[data-i]&#x27;);if(!tr)return;pairSel=[+tr.dataset.i,+tr.dataset.j];setView(&#x27;matrix&#x27;)});
+// Point-in-time analog backtest: counts at day t include only episodes whose horizon completed before t.
+function backtestAnalog(tcost){
+  if(!epi)buildEpisodes();
+  const P=anaParams(),h=res.h,H=P.H,hi=P.hi,W0=60;
+  const useS=universe!==&#x27;pairs&#x27;,useP=universe!==&#x27;names&#x27;;
+  const streams=[];
+  if(useS)streams.push({kind:&#x27;single&#x27;,eps:epi.single.filter(e=&gt;!isNaN(e.f[hi])).map(e=&gt;({...e,done:e.t+H})),cnt:{},ptr:0});
+  if(useP)streams.push({kind:&#x27;pair&#x27;,eps:epi.pair.filter(e=&gt;!isNaN(e.f[hi])).map(e=&gt;({...e,done:e.t+H})),cnt:{},ptr:0});
+  for(const st of streams){st.eps.sort((a,b)=&gt;a.done-b.done);st.list=st.kind===&#x27;single&#x27;?res.rows.map((r,i)=&gt;({sr:r,id:&#x27;s&#x27;+i,legs:[i]})):(()=&gt;{const L=[];for(let i=0;i&lt;N;i++)for(let j=i+1;j&lt;N;j++)L.push({sr:pairs[i][j],id:&#x27;p&#x27;+i+&#x27;_&#x27;+j,legs:[i,j]});return L})()}
+  const open=[];const pnlF=[],pnlX=[],netBeta=[];let turn=0,nF=0,nX=0;const prevW={};const trades=[];
+  // vol regime per series at t (point in time) when conditioning
+  const vrAt=(sr,t)=&gt;{if(!cond||t&lt;250)return &#x27;*&#x27;;if(!sr._cs)sr._cs=cumsum(sr.ePath.map(v=&gt;v*v));const cs=sr._cs;return volBin(Math.sqrt(((cs[t]-cs[t-60])/60)/(((cs[t]-cs[t-250])/250)||1e-9)))};
+  const onsetAt=(sr,t,dir)=&gt;{let o=t;while(o&gt;0&amp;&amp;dir*(sr.spPath[o-1]-sr.snPath[o-1])&gt;0)o--;return t-o+1};
+  for(let t=W0;t&lt;T-1;t++){
+    for(const st of streams)while(st.ptr&lt;st.eps.length&amp;&amp;st.eps[st.ptr].done&lt;t)addCount(st.cnt,st.eps[st.ptr++],hi,false);
+    const openIds=new Set(open.map(o=&gt;o.id));const cands=[];
+    for(const st of streams){
+      for(const c of st.list){
+        if(openIds.has(c.id))continue;
+        const sv=c.sr.spPath[t]-c.sr.snPath[t],L=Math.abs(sv);if(L&lt;P.minS)continue;
+        const dir=sv&gt;=0?1:-1;
+        const r=lookup(st.cnt,dir,bucketOf(L,h),legsAttr(c.legs),cond?ageBin(onsetAt(c.sr,t,dir)):&#x27;*&#x27;,vrAt(c.sr,t),P.nMin,false);
+        if(!r.n)continue;
+        const st_={lvl:bucketOf(L,h),aB:ageBin(onsetAt(c.sr,t,dir)),vB:(()=&gt;{const cs=c.sr._cs||(c.sr._cs=cumsum(c.sr.ePath.map(v=&gt;v*v)));return t&lt;250?1:volBin(Math.sqrt(((cs[t]-cs[t-60])/60)/(((cs[t]-cs[t-250])/250)||1e-9)))})(),swing:(()=&gt;{const sd=swingDirAt(c.sr.sw,t);return sd===0?&#x27;n/a&#x27;:sd===dir?&#x27;with&#x27;:&#x27;against&#x27;})()};
+        if(r.pc&gt;=P.pMom)cands.push({id:c.id,sr:c.sr,sign:-dir,book:&#x27;F&#x27;,edge:r.pc,state:st_});
+        else if(r.pr&gt;=P.pRev)cands.push({id:c.id,sr:c.sr,sign:dir,book:&#x27;X&#x27;,edge:r.pr,state:st_});
+      }
+    }
+    cands.sort((a,b)=&gt;b.edge-a.edge);
+    for(const c of cands){if(open.length&gt;=P.maxOpen)break;const tr_={...c,exp:t+H,t0:t,path:[],pnl:0};open.push(tr_);trades.push(tr_);if(c.book===&#x27;F&#x27;)nF++;else nX++}
+    const nOpen=Math.max(1,open.length);let pF=0,pX=0,gF=0,gX=0,tr=0;const curW={};
+    for(const o of open){const w=o.sign/nOpen;curW[o.id]=(curW[o.id]||0)+w;const e=-o.sr.ePath[t+1];o.pnl+=o.sign*e;o.path.push(o.pnl);if(o.book===&#x27;F&#x27;){pF+=w*e;gF+=Math.abs(w)}else{pX+=w*e;gX+=Math.abs(w)}}
+    for(const id in curW)tr+=Math.abs(curW[id]-(prevW[id]||0));for(const id in prevW)if(!(id in curW))tr+=Math.abs(prevW[id]);
+    for(const id in prevW)delete prevW[id];Object.assign(prevW,curW);
+    const cost=tr*tcost,g=gF+gX||1;turn+=tr;
+    pnlF.push(pF-cost*gF/g);pnlX.push(pX-cost*gX/g);netBeta.push(0);
+    for(let k=open.length-1;k&gt;=0;k--)if(open[k].exp&lt;=t+1)open.splice(k,1);
+  }
+  return {pnlF,pnlX,turn,g:netScores(),netBeta,nF,nX,trades,H};
+}
+// ---- Attribution ----
+function renderAttribution(bt){
+  const tr=bt.trades.filter(x=&gt;x.path.length&gt;=1);
+  const dims=[
+    [&#x27;Book&#x27;,x=&gt;x.book===&#x27;F&#x27;?&#x27;momentum&#x27;:&#x27;reversion&#x27;,[&#x27;momentum&#x27;,&#x27;reversion&#x27;]],
+    [&#x27;Entry |S| bucket&#x27;,x=&gt;x.state.lvl.toFixed(1),null],
+    [&#x27;Run age at entry&#x27;,x=&gt;[&#x27;≤5d&#x27;,&#x27;6–20d&#x27;,&#x27;&gt;20d&#x27;][x.state.aB],[&#x27;≤5d&#x27;,&#x27;6–20d&#x27;,&#x27;&gt;20d&#x27;]],
+    [&#x27;CUSUM move vs larger swing&#x27;,x=&gt;x.state.swing,[&#x27;with&#x27;,&#x27;against&#x27;,&#x27;n/a&#x27;]],
+    [&#x27;Vol regime at entry&#x27;,x=&gt;[&#x27;low&#x27;,&#x27;normal&#x27;,&#x27;high&#x27;][x.state.vB],[&#x27;low&#x27;,&#x27;normal&#x27;,&#x27;high&#x27;]]
+  ];
+  const fmt=(v,d=1)=&gt;(v&gt;0?&#x27;+&#x27;:&#x27;&#x27;)+v.toFixed(d);
+  const summarise=(arr)=&gt;{const n=arr.length;if(!n)return null;const m=arr.reduce((a,b)=&gt;a+b,0)/n,sd=Math.sqrt(arr.reduce((a,b)=&gt;a+(b-m)**2,0)/Math.max(1,n-1)),se=sd/Math.sqrt(n);return {n,mean:m,hit:arr.filter(v=&gt;v&gt;0).length/n,tot:m*n,t:se?m/se:0}};
+  const allAbs=Math.max(1,...dims.flatMap(([_,f,keys])=&gt;{const g={};tr.forEach(x=&gt;{const k=f(x);(g[k]||(g[k]=[])).push(x.pnl)});return Object.values(g).map(a=&gt;Math.abs(summarise(a).mean))}));
+  document.getElementById(&#x27;attrGrid&#x27;).innerHTML=dims.map(([title,f,keys])=&gt;{
+    const g={};tr.forEach(x=&gt;{const k=f(x);(g[k]||(g[k]=[])).push(x.pnl)});
+    const ks=keys?keys.filter(k=&gt;g[k]):Object.keys(g).sort((a,b)=&gt;+a-+b);
+    const rows=ks.map(k=&gt;{const s=summarise(g[k]);const w=Math.abs(s.mean)/allAbs*50;const bar=s.mean&gt;=0?`&lt;i style=&quot;left:50%;width:${w.toFixed(1)}%;background:var(--out)&quot;&gt;&lt;/i&gt;`:`&lt;i style=&quot;right:50%;width:${w.toFixed(1)}%;background:var(--under)&quot;&gt;&lt;/i&gt;`;
+      return `&lt;tr&gt;&lt;td class=&quot;name&quot;&gt;${k}&lt;/td&gt;&lt;td&gt;${s.n}&lt;/td&gt;&lt;td&gt;${(100*s.hit).toFixed(0)}%&lt;/td&gt;&lt;td style=&quot;color:${s.mean&gt;=0?&#x27;var(--out)&#x27;:&#x27;var(--under)&#x27;}&quot;&gt;${fmt(s.mean)}&lt;/td&gt;&lt;td style=&quot;color:${Math.abs(s.t)&gt;=2?&#x27;inherit&#x27;:&#x27;var(--muted)&#x27;}&quot;&gt;${fmt(s.t)}&lt;/td&gt;&lt;td&gt;&lt;div class=&quot;bar&quot; style=&quot;min-width:70px&quot;&gt;&lt;span class=&quot;mid&quot;&gt;&lt;/span&gt;${bar}&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;`}).join(&#x27;&#x27;);
+    return `&lt;div&gt;&lt;div style=&quot;font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 4px&quot;&gt;${title}&lt;/div&gt;&lt;table class=&quot;ledger&quot;&gt;&lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;th&gt;n&lt;/th&gt;&lt;th&gt;Hit&lt;/th&gt;&lt;th&gt;Mean bp&lt;/th&gt;&lt;th&gt;t&lt;/th&gt;&lt;th&gt;&lt;/th&gt;&lt;/tr&gt;${rows||&#x27;&lt;tr&gt;&lt;td colspan=&quot;6&quot; style=&quot;text-align:center;color:var(--muted)&quot;&gt;no trades&lt;/td&gt;&lt;/tr&gt;&#x27;}&lt;/table&gt;&lt;/div&gt;`;
+  }).join(&#x27;&#x27;);
+  // book × swing cross-table: the question that matters most
+  const cross={};tr.forEach(x=&gt;{const k=(x.book===&#x27;F&#x27;?&#x27;momentum&#x27;:&#x27;reversion&#x27;)+&#x27; · &#x27;+x.state.swing;(cross[k]||(cross[k]=[])).push(x.pnl)});
+  let bt_=&#x27;&lt;tr&gt;&lt;th&gt;Book · swing&lt;/th&gt;&lt;th&gt;n&lt;/th&gt;&lt;th&gt;Hit&lt;/th&gt;&lt;th&gt;Mean bp&lt;/th&gt;&lt;th&gt;Total bp&lt;/th&gt;&lt;th&gt;t&lt;/th&gt;&lt;/tr&gt;&#x27;;
+  for(const k of Object.keys(cross).sort()){const s=summarise(cross[k]);bt_+=`&lt;tr&gt;&lt;td class=&quot;name&quot;&gt;${k}&lt;/td&gt;&lt;td&gt;${s.n}&lt;/td&gt;&lt;td&gt;${(100*s.hit).toFixed(0)}%&lt;/td&gt;&lt;td style=&quot;color:${s.mean&gt;=0?&#x27;var(--out)&#x27;:&#x27;var(--under)&#x27;}&quot;&gt;${fmt(s.mean)}&lt;/td&gt;&lt;td&gt;${fmt(s.tot,0)}&lt;/td&gt;&lt;td style=&quot;color:${Math.abs(s.t)&gt;=2?&#x27;inherit&#x27;:&#x27;var(--muted)&#x27;}&quot;&gt;${fmt(s.t)}&lt;/td&gt;&lt;/tr&gt;`}
+  document.getElementById(&#x27;attrBook&#x27;).innerHTML=bt_;
+  // average cumulative PnL by day in trade, momentum vs reversion
+  const cv=document.getElementById(&#x27;cPath&#x27;);const [g,W,Hh]=setup(cv);const pad={l:44,r:10,t:10,b:22};const H=bt.H;
+  const avg=(book)=&gt;{const out=[0];for(let d=0;d&lt;H;d++){let s=0,n=0;tr.forEach(x=&gt;{if(x.book===book&amp;&amp;x.path.length&gt;d){s+=x.path[d];n++}});out.push(n?s/n:NaN)}return out};
+  const aF=avg(&#x27;F&#x27;),aX=avg(&#x27;X&#x27;);const vals=[...aF,...aX].filter(v=&gt;!isNaN(v));const mn=Math.min(0,...vals),mx=Math.max(0,...vals),rg=(mx-mn)||1;
+  const X=d=&gt;pad.l+d/H*(W-pad.l-pad.r),Y=v=&gt;pad.t+(mx-v)/rg*(Hh-pad.t-pad.b);const ln=css(&#x27;--line&#x27;),mu=css(&#x27;--muted&#x27;);
+  g.strokeStyle=ln;g.beginPath();g.moveTo(pad.l,Y(0));g.lineTo(W-pad.r,Y(0));g.stroke();
+  const line=(arr,col)=&gt;{g.strokeStyle=col;g.lineWidth=1.6;g.beginPath();let st=false;arr.forEach((v,d)=&gt;{if(isNaN(v))return;st?g.lineTo(X(d),Y(v)):g.moveTo(X(d),Y(v));st=true});g.stroke()};
+  line(aF,css(&#x27;--accent&#x27;));line(aX,css(&#x27;--warn&#x27;));
+  g.fillStyle=mu;g.font=&#x27;11px &#x27;+css(&#x27;--mono&#x27;);g.textAlign=&#x27;right&#x27;;g.fillText(mx.toFixed(0),pad.l-5,Y(mx)+4);g.fillText(mn.toFixed(0),pad.l-5,Y(mn)+4);g.fillText(&#x27;0&#x27;,pad.l-5,Y(0)+4);
+  g.font=&#x27;11px &#x27;+css(&#x27;--sans&#x27;);g.textAlign=&#x27;left&#x27;;g.fillText(&#x27;avg cumulative PnL per trade, bp · momentum (blue) vs reversion (amber)&#x27;,pad.l,Hh-6);g.textAlign=&#x27;right&#x27;;g.fillText(&#x27;day &#x27;+H,W-pad.r,Hh-6);
+}
+// ---- Backtest ----
+let rule=&#x27;daily&#x27;,sizing=&#x27;beta&#x27;;
+function netScores(){ // g[t][i]
+  if(!pairs)computePairs();
+  const g=[];
+  for(let t=0;t&lt;T;t++){const row=new Array(N).fill(0);
+    for(let i=0;i&lt;N;i++)for(let j=i+1;j&lt;N;j++){const a=pairs[i][j].spPath[t]-pairs[i][j].snPath[t],b=pairs[j][i].spPath[t]-pairs[j][i].snPath[t];const s=(a-b)/2;row[i]+=s;row[j]-=s}
+    g.push(row.map(v=&gt;v/(N-1)));}
+  return g;
+}
+function backtest(K,tcost,ruleName){
+  const g=netScores(),h=res.h,W0=60;
+  let pos=new Array(N).fill(0),posW=new Array(N).fill(0);   // +1 = long bond (yield down = profit), follow convention
+  const pnlF=[],pnlX=[],netBeta=[];let turn=0,ntr=0;
+  for(let t=W0;t&lt;T-1;t++){
+    const gt=g[t];let next=new Array(N).fill(0);
+    if(ruleName===&#x27;daily&#x27;){
+      const idx=[...Array(N).keys()].sort((a,b)=&gt;gt[b]-gt[a]);
+      for(let q=0;q&lt;K;q++){next[idx[q]]=-1/K;next[idx[N-1-q]]=1/K}   // follow: short cheapening, long richening
+    }else{
+      for(let i=0;i&lt;N;i++){
+        const hi=h/2,lo=h/4;
+        if(pos[i]!==0&amp;&amp;Math.abs(gt[i])&lt;lo)next[i]=0;else next[i]=pos[i];
+        if(pos[i]===0&amp;&amp;gt[i]&gt;hi)next[i]=-1;if(pos[i]===0&amp;&amp;gt[i]&lt;-hi)next[i]=1;
+      }
+      const n=next.filter(v=&gt;v!==0).length;if(n&gt;0)next=next.map(v=&gt;v/Math.max(n/2,1));
+    }
+    // Size: u = signal weights (sum to 0). Beta-adjusted: w_i = u_i / beta_i so Σ w_i β_i = Σ u_i = 0, and PnL is on raw Δy.
+    let w=next,p=0,tr=0,nb=0,gross=0;
+    if(sizing===&#x27;beta&#x27;){
+      w=next.map((u,i)=&gt;u===0?0:u/Math.max(0.3,res.rows[i].betaPath[t]));
+      const gw=w.reduce((a,b)=&gt;a+Math.abs(b),0),gu=next.reduce((a,b)=&gt;a+Math.abs(b),0);
+      if(gw&gt;0)w=w.map(v=&gt;v*gu/gw);   // keep gross notional equal to the equal-weight book
+      for(let i=0;i&lt;N;i++){p+=w[i]*(-dY[i][t+1]);nb+=w[i]*res.rows[i].betaPath[t]}
+    }else{
+      for(let i=0;i&lt;N;i++)p+=w[i]*(-res.rows[i].ePath[t+1]);
+    }
+    for(let i=0;i&lt;N;i++){tr+=Math.abs(w[i]-posW[i]);gross+=Math.abs(w[i])}
+    const cost=tr*tcost;turn+=tr;if(tr&gt;0)ntr++;netBeta.push(nb);
+    pnlF.push(p-cost);pnlX.push(-p-cost);pos=next;posW=w;
+  }
+  return {pnlF,pnlX,turn,g,netBeta};
+}
+function stats(p){const n=p.length,m=p.reduce((a,b)=&gt;a+b,0)/n,sd=Math.sqrt(p.reduce((a,b)=&gt;a+(b-m)**2,0)/n)||1;let eq=0,pk=0,dd=0;const cum=p.map(v=&gt;{eq+=v;pk=Math.max(pk,eq);dd=Math.min(dd,eq-pk);return eq});return {tot:eq,sharpe:m/sd*Math.sqrt(252),hit:p.filter(v=&gt;v&gt;0).length/n,dd,cum}}
+function renderBacktest(){
+  const K=+document.getElementById(&#x27;K&#x27;).value,tc=+document.getElementById(&#x27;tc&#x27;).value;
+  const bt=rule===&#x27;ana&#x27;?backtestAnalog(tc):backtest(K,tc,rule),sF=stats(bt.pnlF),sX=stats(bt.pnlX);
+  document.getElementById(&#x27;btLegend&#x27;).innerHTML=rule===&#x27;ana&#x27;?`&lt;span&gt;&lt;i style=&quot;background:var(--accent)&quot;&gt;&lt;/i&gt;Momentum book · ${bt.nF} trades (P(continue) ≥ ${(anaParams().pMom*100).toFixed(0)}%)&lt;/span&gt;&lt;span&gt;&lt;i style=&quot;background:var(--warn)&quot;&gt;&lt;/i&gt;Reversion book · ${bt.nX} trades (P(revert) ≥ ${(anaParams().pRev*100).toFixed(0)}%)&lt;/span&gt;`:&#x27;&lt;span&gt;&lt;i style=&quot;background:var(--accent)&quot;&gt;&lt;/i&gt;Follow (long outperformer, short underperformer)&lt;/span&gt;&lt;span&gt;&lt;i style=&quot;background:var(--warn)&quot;&gt;&lt;/i&gt;Fade (the reverse)&lt;/span&gt;&#x27;;
+  const fmt=(v,d=1)=&gt;(v&gt;0?&#x27;+&#x27;:&#x27;&#x27;)+v.toFixed(d);
+  document.getElementById(&#x27;btStats&#x27;).innerHTML=[
+    [(rule===&#x27;ana&#x27;?&#x27;Momentum&#x27;:&#x27;Follow&#x27;)+&#x27; · total&#x27;,fmt(sF.tot,0)+&#x27; bp&#x27;],[(rule===&#x27;ana&#x27;?&#x27;Momentum&#x27;:&#x27;Follow&#x27;)+&#x27; · Sharpe&#x27;,fmt(sF.sharpe,2)],[(rule===&#x27;ana&#x27;?&#x27;Momentum&#x27;:&#x27;Follow&#x27;)+&#x27; · max DD&#x27;,sF.dd.toFixed(0)+&#x27; bp&#x27;],
+    [(rule===&#x27;ana&#x27;?&#x27;Reversion&#x27;:&#x27;Fade&#x27;)+&#x27; · total&#x27;,fmt(sX.tot,0)+&#x27; bp&#x27;],[(rule===&#x27;ana&#x27;?&#x27;Reversion&#x27;:&#x27;Fade&#x27;)+&#x27; · Sharpe&#x27;,fmt(sX.sharpe,2)],[&#x27;Turnover/day&#x27;,(bt.turn/bt.pnlF.length).toFixed(2)],[&#x27;Net β · mean |·|&#x27;,(bt.netBeta.reduce((a,b)=&gt;a+Math.abs(b),0)/bt.netBeta.length).toFixed(3)]
+  ].map(([l,v])=&gt;`&lt;div class=&quot;stat&quot;&gt;&lt;b&gt;${v}&lt;/b&gt;&lt;span&gt;${l}&lt;/span&gt;&lt;/div&gt;`).join(&#x27;&#x27;);
+  // equity chart
+  const cv=document.getElementById(&#x27;cEq&#x27;);const [g,W,H]=setup(cv);
+  const pad={l:48,r:12,t:12,b:22},all=[...sF.cum,...sX.cum,0],mn=Math.min(...all),mx=Math.max(...all),rg=(mx-mn)||1,n=sF.cum.length;
+  const X=i=&gt;pad.l+i/(n-1)*(W-pad.l-pad.r),Y=v=&gt;pad.t+(mx-v)/rg*(H-pad.t-pad.b);
+  const ln=css(&#x27;--line&#x27;),mu=css(&#x27;--muted&#x27;);
+  g.strokeStyle=ln;g.lineWidth=1;g.fillStyle=mu;g.font=&#x27;11px &#x27;+css(&#x27;--mono&#x27;);g.textAlign=&#x27;right&#x27;;
+  [mn,0,mx].forEach(v=&gt;{g.beginPath();g.moveTo(pad.l,Y(v));g.lineTo(W-pad.r,Y(v));g.stroke();g.fillText(v.toFixed(0),pad.l-6,Y(v)+4)});
+  const line=(arr,col)=&gt;{g.strokeStyle=col;g.lineWidth=1.6;g.beginPath();arr.forEach((v,i)=&gt;i?g.lineTo(X(i),Y(v)):g.moveTo(X(i),Y(v)));g.stroke()};
+  line(sF.cum,css(&#x27;--accent&#x27;));line(sX.cum,css(&#x27;--warn&#x27;));
+  g.fillStyle=mu;g.font=&#x27;11px &#x27;+css(&#x27;--sans&#x27;);g.textAlign=&#x27;left&#x27;;g.fillText(&#x27;cumulative PnL, bp · day 60 → today&#x27;,pad.l,H-6);
+  // K sweep
+  let rows;
+  if(rule===&#x27;ana&#x27;){rows=&#x27;&lt;tr&gt;&lt;th&gt;P threshold&lt;/th&gt;&lt;th&gt;Momentum Sharpe&lt;/th&gt;&lt;th&gt;Reversion Sharpe&lt;/th&gt;&lt;th&gt;Trades&lt;/th&gt;&lt;/tr&gt;&#x27;;const pr=document.getElementById(&#x27;pRev&#x27;),pm=document.getElementById(&#x27;pMom&#x27;),r0=pr.value,m0=pm.value;
+    for(const th of (universe===&#x27;names&#x27;?[50,55,60,65,70,75,80]:[+r0])){pr.value=th;pm.value=th;const b=backtestAnalog(tc),a=stats(b.pnlF),c=stats(b.pnlX);rows+=`&lt;tr${String(th)===r0&amp;&amp;String(th)===m0?&#x27; class=&quot;sel&quot;&#x27;:&#x27;&#x27;}&gt;&lt;td&gt;${th}%&lt;/td&gt;&lt;td style=&quot;color:${a.sharpe&gt;0?&#x27;var(--out)&#x27;:&#x27;var(--under)&#x27;}&quot;&gt;${fmt(a.sharpe,2)}&lt;/td&gt;&lt;td style=&quot;color:${c.sharpe&gt;0?&#x27;var(--out)&#x27;:&#x27;var(--under)&#x27;}&quot;&gt;${fmt(c.sharpe,2)}&lt;/td&gt;&lt;td&gt;${b.nF+b.nX}&lt;/td&gt;&lt;/tr&gt;`}pr.value=r0;pm.value=m0}
+  else{rows=&#x27;&lt;tr&gt;&lt;th&gt;K&lt;/th&gt;&lt;th&gt;Follow Sharpe&lt;/th&gt;&lt;th&gt;Fade Sharpe&lt;/th&gt;&lt;th&gt;Follow bp&lt;/th&gt;&lt;/tr&gt;&#x27;;
+  for(let k=1;k&lt;=8;k++){const b=backtest(k,tc,rule),a=stats(b.pnlF),c=stats(b.pnlX);rows+=`&lt;tr${k===K?&#x27; class=&quot;sel&quot;&#x27;:&#x27;&#x27;}&gt;&lt;td&gt;${k}&lt;/td&gt;&lt;td style=&quot;color:${a.sharpe&gt;0?&#x27;var(--out)&#x27;:&#x27;var(--under)&#x27;}&quot;&gt;${fmt(a.sharpe,2)}&lt;/td&gt;&lt;td style=&quot;color:${c.sharpe&gt;0?&#x27;var(--out)&#x27;:&#x27;var(--under)&#x27;}&quot;&gt;${fmt(c.sharpe,2)}&lt;/td&gt;&lt;td&gt;${fmt(a.tot,0)}&lt;/td&gt;&lt;/tr&gt;`}}
+  document.getElementById(&#x27;sweep&#x27;).innerHTML=rows;
+  // net score table
+  const gt=bt.g[T-1],idx=[...Array(N).keys()].sort((a,b)=&gt;gt[b]-gt[a]);
+  const cell=i=&gt;`&lt;td class=&quot;name&quot;&gt;${NAMES[C[i]]}&lt;/td&gt;&lt;td style=&quot;color:${gt[i]&gt;0?&#x27;var(--under)&#x27;:&#x27;var(--out)&#x27;}&quot;&gt;${fmt(gt[i],2)}&lt;/td&gt;`;
+  let nr=&#x27;&lt;tr&gt;&lt;th&gt;Cheapening&lt;/th&gt;&lt;th&gt;g&lt;/th&gt;&lt;th&gt;Richening&lt;/th&gt;&lt;th&gt;g&lt;/th&gt;&lt;/tr&gt;&#x27;;
+  for(let q=0;q&lt;K;q++)nr+=`&lt;tr&gt;${cell(idx[q])}${cell(idx[N-1-q])}&lt;/tr&gt;`;
+  document.getElementById(&#x27;netTbl&#x27;).innerHTML=nr;
+  document.getElementById(&#x27;attrWrap&#x27;).hidden=rule!==&#x27;ana&#x27;;
+  if(rule===&#x27;ana&#x27;)renderAttribution(bt);
+}
+[&#x27;K&#x27;,&#x27;tc&#x27;].forEach(id=&gt;document.getElementById(id).addEventListener(&#x27;input&#x27;,()=&gt;{document.getElementById(id+&#x27;v&#x27;).textContent=id===&#x27;tc&#x27;?(+document.getElementById(id).value).toFixed(2):document.getElementById(id).value;if(view===&#x27;bt&#x27;)renderBacktest()}));
+document.getElementById(&#x27;rDaily&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{rule=&#x27;daily&#x27;;setRule();renderBacktest()});
+document.getElementById(&#x27;rAlarm&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{rule=&#x27;alarm&#x27;;setRule();renderBacktest()});
+document.getElementById(&#x27;rAna&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{rule=&#x27;ana&#x27;;setRule();renderBacktest()});
+document.getElementById(&#x27;sBetaAdj&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{sizing=&#x27;beta&#x27;;setSizing();renderBacktest()});
+document.getElementById(&#x27;sEqual&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{sizing=&#x27;equal&#x27;;setSizing();renderBacktest()});
+function setSizing(){document.getElementById(&#x27;sBetaAdj&#x27;).setAttribute(&#x27;aria-pressed&#x27;,sizing===&#x27;beta&#x27;);document.getElementById(&#x27;sEqual&#x27;).setAttribute(&#x27;aria-pressed&#x27;,sizing===&#x27;equal&#x27;)}
+function setRule(){document.getElementById(&#x27;rDaily&#x27;).setAttribute(&#x27;aria-pressed&#x27;,rule===&#x27;daily&#x27;);document.getElementById(&#x27;rAlarm&#x27;).setAttribute(&#x27;aria-pressed&#x27;,rule===&#x27;alarm&#x27;);document.getElementById(&#x27;rAna&#x27;).setAttribute(&#x27;aria-pressed&#x27;,rule===&#x27;ana&#x27;);document.getElementById(&#x27;anaStrip&#x27;).hidden=!(view===&#x27;scan&#x27;||(view===&#x27;bt&#x27;&amp;&amp;rule===&#x27;ana&#x27;))}
+// analog filter controls
+[&#x27;pRev&#x27;,&#x27;pMom&#x27;,&#x27;minS&#x27;,&#x27;nMin&#x27;].forEach(id=&gt;{const e=document.getElementById(id);e.addEventListener(&#x27;input&#x27;,()=&gt;{document.getElementById(id+&#x27;v&#x27;).textContent=id===&#x27;minS&#x27;?(+e.value).toFixed(2):id===&#x27;nMin&#x27;?e.value:e.value+&#x27;%&#x27;;onAna()})});
+document.querySelectorAll(&#x27;#hzSeg button&#x27;).forEach(b=&gt;b.addEventListener(&#x27;click&#x27;,()=&gt;{document.querySelectorAll(&#x27;#hzSeg button&#x27;).forEach(x=&gt;x.setAttribute(&#x27;aria-pressed&#x27;,x===b));onAna()}));
+function onAna(){if(view===&#x27;scan&#x27;)renderScanner();if(view===&#x27;bt&#x27;&amp;&amp;rule===&#x27;ana&#x27;)renderBacktest()}
+document.querySelectorAll(&#x27;#poolSeg button&#x27;).forEach(b=&gt;b.addEventListener(&#x27;click&#x27;,()=&gt;{pool=b.dataset.p;document.querySelectorAll(&#x27;#poolSeg button&#x27;).forEach(x=&gt;x.setAttribute(&#x27;aria-pressed&#x27;,x===b));onAna()}));
+document.querySelectorAll(&#x27;#uniSeg button&#x27;).forEach(b=&gt;b.addEventListener(&#x27;click&#x27;,()=&gt;{universe=b.dataset.u;document.querySelectorAll(&#x27;#uniSeg button&#x27;).forEach(x=&gt;x.setAttribute(&#x27;aria-pressed&#x27;,x===b));onAna()}));
+document.getElementById(&#x27;condBtn&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{cond=!cond;const b=document.getElementById(&#x27;condBtn&#x27;);b.setAttribute(&#x27;aria-pressed&#x27;,cond);b.textContent=&#x27;Match run age &amp; vol regime: &#x27;+(cond?&#x27;on&#x27;:&#x27;off&#x27;);onAna()});
+document.getElementById(&#x27;maxOpen&#x27;).addEventListener(&#x27;input&#x27;,e=&gt;{document.getElementById(&#x27;maxOpenv&#x27;).textContent=e.target.value;if(view===&#x27;bt&#x27;&amp;&amp;rule===&#x27;ana&#x27;)renderBacktest()});
+document.getElementById(&#x27;dyn&#x27;).addEventListener(&#x27;input&#x27;,()=&gt;{const d=+document.getElementById(&#x27;dyn&#x27;).value;document.getElementById(&#x27;dynv&#x27;).textContent=d&gt;0?&#x27;trend &#x27;+d.toFixed(1):d&lt;0?&#x27;revert &#x27;+(-d).toFixed(1):&#x27;random walk&#x27;;simulate();run()});
+
+function run(){compute();renderTable();if(view===&#x27;matrix&#x27;)renderMatrix();if(view===&#x27;scan&#x27;)renderScanner();if(view===&#x27;bt&#x27;)renderBacktest();if(view!==&#x27;bt&#x27;)renderDetail()}
+const rankPanel=document.querySelector(&#x27;.grid &gt; section.panel&#x27;),matPanel=document.getElementById(&#x27;matPanel&#x27;),btPanel=document.getElementById(&#x27;btPanel&#x27;),detPanel=document.getElementById(&#x27;detPanel&#x27;),scanPanel=document.getElementById(&#x27;scanPanel&#x27;);
+function setView(v){
+  view=v;[&#x27;vRank&#x27;,&#x27;vMat&#x27;,&#x27;vScan&#x27;,&#x27;vBt&#x27;].forEach((id,q)=&gt;document.getElementById(id).setAttribute(&#x27;aria-pressed&#x27;,[&#x27;rank&#x27;,&#x27;matrix&#x27;,&#x27;scan&#x27;,&#x27;bt&#x27;][q]===v));
+  rankPanel.hidden=v!==&#x27;rank&#x27;;matPanel.hidden=v!==&#x27;matrix&#x27;;btPanel.hidden=v!==&#x27;bt&#x27;;scanPanel.hidden=v!==&#x27;scan&#x27;;detPanel.hidden=(v===&#x27;bt&#x27;||v===&#x27;scan&#x27;);
+  document.getElementById(&#x27;anaStrip&#x27;).hidden=!(v===&#x27;scan&#x27;||(v===&#x27;bt&#x27;&amp;&amp;rule===&#x27;ana&#x27;));
+  if(v===&#x27;scan&#x27;)renderScanner();
+  if(v===&#x27;matrix&#x27;){if(!pairSel){const top=[...res.rows].sort((a,b)=&gt;b.score-a.score);pairSel=[top[0].i,top[top.length-1].i]}renderMatrix()}
+  if(v===&#x27;bt&#x27;)renderBacktest();else renderDetail();
+}
+document.getElementById(&#x27;vRank&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;setView(&#x27;rank&#x27;));
+document.getElementById(&#x27;vMat&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;setView(&#x27;matrix&#x27;));
+document.getElementById(&#x27;vBt&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;setView(&#x27;bt&#x27;));
+document.getElementById(&#x27;vScan&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;setView(&#x27;scan&#x27;));
+function refresh(){document.getElementById(&#x27;hv&#x27;).textContent=(+hEl.value).toFixed(1);document.getElementById(&#x27;kv&#x27;).textContent=(+kEl.value).toFixed(2);document.getElementById(&#x27;hlv&#x27;).textContent=hlEl.value;run()}
+[hEl,kEl,hlEl].forEach(e=&gt;e.addEventListener(&#x27;input&#x27;,refresh));
+document.getElementById(&#x27;mBeta&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{mode=&#x27;beta&#x27;;setSeg();run()});
+document.getElementById(&#x27;mMean&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{mode=&#x27;mean&#x27;;setSeg();run()});
+function setSeg(){document.getElementById(&#x27;mBeta&#x27;).setAttribute(&#x27;aria-pressed&#x27;,mode===&#x27;beta&#x27;);document.getElementById(&#x27;mMean&#x27;).setAttribute(&#x27;aria-pressed&#x27;,mode===&#x27;mean&#x27;)}
+document.getElementById(&#x27;resample&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{simSeed=(simSeed*7+13)&gt;&gt;&gt;0;simulate();run()});
+simulate();compute();sel=[...res.rows].sort((a,b)=&gt;Math.abs(b.score)-Math.abs(a.score))[0].i;renderTable();renderDetail();
+function redraw(){if(view===&#x27;matrix&#x27;)renderMatrix();if(view===&#x27;bt&#x27;)renderBacktest();else if(view!==&#x27;scan&#x27;)renderDetail()}
+window.addEventListener(&#x27;resize&#x27;,redraw);
+if(window.matchMedia)window.matchMedia(&#x27;(prefers-color-scheme: dark)&#x27;).addEventListener(&#x27;change&#x27;,redraw);
+})();
+&lt;/script&gt;
+</textarea>
+</div>
+</main>
+</div>
+<script>
+(function(){
+  const box=document.getElementById('srcBox');
+  function copy(toastId){const t=document.getElementById(toastId);const txt=box.value;
+    const ok=()=>{t.textContent='Copied '+txt.length.toLocaleString()+' characters';setTimeout(()=>t.textContent='',4000)};
+    const fallback=()=>{box.focus();box.select();try{document.execCommand('copy');ok()}catch(e){t.textContent='Select the text in the box and copy manually'}};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(ok,fallback);else fallback();}
+  document.getElementById('copyTop').addEventListener('click',()=>copy('toastTop'));
+  document.getElementById('copyBot').addEventListener('click',()=>copy('toastBot'));
+})();
+</script>
